@@ -1,0 +1,136 @@
+body{
+    text-decoration: none;
+    all: unset;
+}
+
+#header {
+    text-align: center;
+}
+
+#main_body {
+    display: flex;
+    flex-wrap:  wrap;
+    flex-direction: row;
+    margin: 2px;
+    border: 2px solid rgb(99, 93, 93);
+    background-color: rgb(55, 55, 180);
+}
+
+#main_body #sidebar{
+    background-color: rgb(46, 29, 141);
+    flex-grow: 0.1;
+    margin: 1em;
+    opacity: 0.9;
+    text-align: center;
+}
+#main_body  #sidebar_logo{
+    font-size: 20px;
+    padding: 2px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 10px;
+    background-color: rgb(36, 36, 134);
+    cursor: pointer;
+    border: 1px solid rgb(36, 36, 68);
+
+}
+#main_body #sidebar_logo:hover{
+    background-color: aliceblue;
+}
+
+#sidebar #sidebar_logo button{
+    padding: 20px;
+}
+
+#sidebar #sidebar_list{
+    list-style: none;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+#sidebar_list .sidebar_items{
+    margin: 1.5em;
+    padding: 1em;
+    font-size: 20px;
+    cursor: pointer;
+    width: 20%;
+}
+#sidebar_list .sidebar_items span{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2em;
+}
+
+#sidebar_list .sidebar_items i{
+    font-size: 30px;
+    margin-left: 5px;
+    border: 2px solid black;
+    border-radius: 50%;
+    position: absolute;
+    left: 0;
+    padding: 10px;
+    margin-left: 1.2em;
+}
+
+#sidebar_list .sidebar_items i:hover{
+    background-color: aliceblue;
+}
+#sidebar_list .sidebar_items p{
+    margin: 3px;
+    display: absolute;
+    left: 0;
+}
+#sidebar_list .sidebar_items p:hover{
+    text-decoration: underline dashed;
+}
+
+#body{
+    background-color: rgb(51, 44, 148);
+    margin-left: 3px;
+    flex-grow: 2;
+    text-align: center;
+    margin: 1em;
+    padding: 1em;
+ 
+}
+
+.logo_button_toggle{
+    width: 100px;
+}
+
+#image_place{
+    margin-left: auto;
+    margin-right: auto;
+    height: 400px;
+    width: 400px;
+    background-color: green;
+}
+
+@media (max-width: 893px){
+     #sidebar{
+        display: none;
+    }
+    #sidebar #sidebar_logo{
+        display: relative;
+
+    }
+    #body{
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+
+}
+/* .show{
+    left: 0;
+    display: block;
+} */
+@media (min-width: 893px){
+    #main_body #sidebar_logo{
+        display: none;
+    }  
+}
+
