@@ -109,7 +109,7 @@ body{
     background-color: green;
 }
 
-@media (max-width: 893px){
+@media (width<= 893px){
      #sidebar{
         display: none;
     }
@@ -124,13 +124,42 @@ body{
     }
 
 }
-/* .show{
-    left: 0;
-    display: block;
-} */
-@media (min-width: 893px){
+
+@media (width > 893px){
     #main_body #sidebar_logo{
         display: none;
     }  
+    #new_div{
+        display: none;
+    }
+    #main_body #body h2 i{
+        display: none;
+    }
+}
+
+.icon_horizontal{
+    padding: 0.5em;
+    border: 1px solid black;
+    border-radius: 50%;
+    margin: 0.1em;
+    cursor: pointer;
+}
+.icon_horizontal:hover{
+    background-color: aliceblue;
+}
+
+
+.new_div{
+    height: 2em;
+    width: 80%;
+    /* background-color: yellow; */
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+    align-items: center;
+    /* border: 1px solid black; */
 }
 
