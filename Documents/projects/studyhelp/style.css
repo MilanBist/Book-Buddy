@@ -13,11 +13,11 @@ body{
     flex-direction: row;
     margin: 2px;
     border: 2px solid rgb(99, 93, 93);
-    background-color: rgb(55, 55, 180);
+    background-color: rgb(36, 36, 37);
 }
 
 #main_body #sidebar{
-    background-color: rgb(46, 29, 141);
+    background-color: rgb(26, 25, 27);
     flex-grow: 0.1;
     margin: 1em;
     opacity: 0.9;
@@ -29,9 +29,9 @@ body{
     padding-left: 10px;
     padding-right: 10px;
     margin: 10px;
-    background-color: rgb(36, 36, 134);
+    background-color: rgb(38, 38, 44);
     cursor: pointer;
-    border: 1px solid rgb(36, 36, 68);
+    border: 1px solid rgb(93, 93, 104);
 
 }
 #main_body #sidebar_logo:hover{
@@ -88,7 +88,7 @@ body{
 }
 
 #body{
-    background-color: rgb(51, 44, 148);
+    background-color: rgb(28, 28, 31);
     margin-left: 3px;
     flex-grow: 2;
     text-align: center;
@@ -106,7 +106,7 @@ body{
     margin-right: auto;
     height: 400px;
     width: 400px;
-    background-color: green;
+    background-color: rgb(3, 3, 3);
 }
 
 @media (width<= 893px){

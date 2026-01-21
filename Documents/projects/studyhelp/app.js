@@ -15,6 +15,9 @@ button.addEventListener('click', ()=>{
     if(!isopen){
         const body = document.querySelector('#main_body #body h2');
         const icons = document.querySelectorAll("#sidebar i");
+        // get the mouse click option and set the logo's background to green
+        const logo = document.querySelector('#main_body #sidebar_logo');
+        logo.style.backgroundColor = 'green';
         console.log(icons)
         // I have got the icons then view all the icons in the screen
         // make a div at the top of the of the main body
@@ -37,6 +40,7 @@ button.addEventListener('click', ()=>{
 
     else{
         // completely remove the div
+        document.querySelector('#main_body #sidebar_logo').style.backgroundColor = 'rgb(36, 36, 134)'
         new_div.remove()
         new_div = null;
         isopen = false;
