@@ -65,7 +65,7 @@ func ExtractData(file *multipart.File, filePath string, s *models.Server) error 
 
 
 	// store in the vector store
-	err = vectorStore(splittedDocx, s)
+	err = VectorStore(splittedDocx, s, filePath)
 
 
 	return nil
