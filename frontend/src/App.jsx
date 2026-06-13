@@ -2,27 +2,27 @@ import './App.css'
 import { useState } from 'react'
 import axios from 'axios';
 import FileInput from '../components/FileInput';
+import SearchBar from '../components/SearchBar';
 
 function App() {
   // set the headers
-  const [uploadProgress, setUploadProgress] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [result, setResult] = useState(null);
   const [uploadResponse, setUploadResponse] = useState(null);
+  const [searchBar, setSearchBar] = useState(false);
+  const [uploadFile, setUploadFile] = useState(false);
 
 
   // handle the fileupload 
   const handlefileUpload = async (file)=>{
 
-    console.log("Handle file is being called");
-    if (file != null){
-      console.log("This is also not null.")
-    }
+    // console.log("Handle file is being called");
+    // if (file != null){
+    //   console.log("This is also not null.")
+    // }
 
-    setUploadProgress(0);
     setIsUploading(true);
     setResult(null);
-
 
     // create the instance of the form data
     const formData = new FormData();
@@ -30,34 +30,70 @@ function App() {
     // after appending the file now my task is to send the request using the axios to the browser
     try{
       const response = await axios.post("http://localhost:8080/api/handlePdf", formData,{
-      // now keep the track of the uploadProgress
-      onUploadProgress: (event)=>{
-        const percent = Math.round(
-          (event.loaded/event.total)*100
-        );
-        // change the upload progress by certain percent calculated above
-        setUploadProgress(percent);
-      },
+      // onUploadProgress: (event)=>{
+      //   const percent = Math.round(
+      //     (event.loaded/event.total)*100
+      //   );
+      //   // change the upload progress by certain percent calculated above
+      // },
+
+      
     });
     console.log(response.data)
+    setResult(response.data)
+    
   } catch(err){
     console.log(err)
+    setResult(null)
   }
 
-    // now as the file data is read success fully and the setUploadProgress is dont now set uploading to be false
+  // since successfully uploaded
     setIsUploading(false);
+
+  }
+
+  const handleShowUploadFile = ()=>{
+    if (uploadFile){
+      setUploadFile(false);
+      return;
+    }
+
+    setUploadFile(true);
   }
 
 
   return (
     <div id='main'>
-      <div>
-        <FileInput onFileSelect={handlefileUpload} disabled={isUploading}/>
+      <div className='component'>
+      <div id='navBar'>
+        NavBar
+      </div>
+
+      <div className='chatandupload'>
+      <div id='chatHistory'>
+        <h2>ChatHistory</h2>
+      </div>
+
+      <div className='content'>
+        <h2>Content</h2>
+        <div id='message'>
+          Handling file
+        <button onClick={handleShowUploadFile}>Upload File</button>
+        {uploadFile &&  <FileInput onFileSelect={handlefileUpload} disabled={isUploading}/>}
+        </div>
+
+        <div id='searchBar'>
+          <SearchBar/>
+        </div>
+
+      </div>
+
       </div>
 
 
     </div>
+    </div>
   )
 }
 
-export default App
+export default App;
