@@ -4,12 +4,8 @@ import (
 	"context"
 	"fmt"
 	"strings"
-
-	// "log"
 	"os"
 	"strconv"
-
-
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/qdrant/go-client/qdrant"
 	"github.com/tmc/langchaingo/llms/ollama"
