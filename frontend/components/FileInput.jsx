@@ -19,14 +19,14 @@ export default function FileInput({onFileSelect, disabled}){
     }
 
     return(
-        <div>
+        <div id="fileupload">
             <input type="file" 
                 onChange={handleFileChange}
                 disabled={disabled}
                 className="file_input_by_user"
             />
             <button onClick={submitFile} disabled={disabled}>
-                Upload pdf
+                Process
             </button>
         </div>
     )
