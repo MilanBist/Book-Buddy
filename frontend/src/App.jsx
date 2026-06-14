@@ -3,6 +3,7 @@ import { useState } from 'react'
 import axios from 'axios';
 import FileInput from '../components/FileInput';
 import SearchBar from '../components/SearchBar';
+import NavBar from '../components/NavBar';
 
 function App() {
   // set the headers
@@ -64,34 +65,14 @@ function App() {
 
   return (
     <div id='main'>
-      <div className='component'>
-      <div id='navBar'>
-        NavBar
+
+      <div id='navBare'>
+        <NavBar/>
       </div>
+      <div id='chatHistory'>ChatHistory</div>
+      <div id='upload'>Upload</div>
+      <div id='typeBar'>SearchBar</div>
 
-      <div className='chatandupload'>
-      <div id='chatHistory'>
-        <h2>ChatHistory</h2>
-      </div>
-
-      <div className='content'>
-        <h2>Content</h2>
-        <div id='message'>
-          Handling file
-        <button onClick={handleShowUploadFile}>Upload File</button>
-        {uploadFile &&  <FileInput onFileSelect={handlefileUpload} disabled={isUploading}/>}
-        </div>
-
-        <div id='searchBar'>
-          <SearchBar/>
-        </div>
-
-      </div>
-
-      </div>
-
-
-    </div>
     </div>
   )
 }
