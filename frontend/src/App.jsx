@@ -4,6 +4,7 @@ import axios from 'axios';
 import FileInput from '../components/FileInput';
 import SearchBar from '../components/SearchBar';
 import NavBar from '../components/NavBar';
+import ChatHistory from '../components/ChatHistory';
 
 function App() {
   // set the headers
@@ -66,12 +67,21 @@ function App() {
   return (
     <div id='main'>
 
-      <div id='navBare'>
+      <div id='navBar'>
         <NavBar/>
       </div>
-      <div id='chatHistory'>ChatHistory</div>
+
+    
+      <div id='chatHistory'>
+        <h2 id='chathead'>CHAT HISTORY</h2>
+        <ChatHistory/>
+      </div>
+
       <div id='upload'>Upload</div>
-      <div id='typeBar'>SearchBar</div>
+
+      <div id='typeBar'>
+        <SearchBar/>
+      </div>
 
     </div>
   )
