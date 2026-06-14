@@ -20,6 +20,23 @@ export default function ChatHistory(){
                     <li>Item1</li>
                     <li>Item1</li>
                     <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
+                    <li>Item1</li>
                 </ul>
             </div>
         </div>

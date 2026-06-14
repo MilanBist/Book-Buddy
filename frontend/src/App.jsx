@@ -7,68 +7,49 @@ import NavBar from '../components/NavBar';
 import ChatHistory from '../components/ChatHistory';
 
 function App() {
-  // set the headers
+  // for the uploading of the file through form
   const [isUploading, setIsUploading] = useState(false);
+
+  // after getting the result from the
   const [result, setResult] = useState(null);
-  const [uploadResponse, setUploadResponse] = useState(null);
-  const [searchBar, setSearchBar] = useState(false);
+
+  // for showing the upload Bar visible or not in the page
+  const [uploadBar, setUploadBar] = useState(false);
+
+
+  // for the uploaded file true or not
   const [uploadFile, setUploadFile] = useState(false);
 
 
   // handle the fileupload 
   const handlefileUpload = async (file)=>{
-
-    // console.log("Handle file is being called");
-    // if (file != null){
-    //   console.log("This is also not null.")
-    // }
-
     setIsUploading(true);
-    setResult(null);
+    // setResult(null);
 
     // create the instance of the form data
     const formData = new FormData();
     formData.append("document", file)
     // after appending the file now my task is to send the request using the axios to the browser
     try{
-      const response = await axios.post("http://localhost:8080/api/handlePdf", formData,{
-      // onUploadProgress: (event)=>{
-      //   const percent = Math.round(
-      //     (event.loaded/event.total)*100
-      //   );
-      //   // change the upload progress by certain percent calculated above
-      // },
-
-      
-    });
-    console.log(response.data)
-    setResult(response.data)
+      const response = await axios.post("http://localhost:8080/api/handlePdf", formData);
+      console.log(response.data)
+    // setResult(response.data)
     
-  } catch(err){
-    console.log(err)
-    setResult(null)
-  }
+    } catch(err){
+        console.log(err)
+    // setResult(null)
+    }
 
   // since successfully uploaded
     setIsUploading(false);
 
   }
 
-  const handleShowUploadFile = ()=>{
-    if (uploadFile){
-      setUploadFile(false);
-      return;
-    }
-
-    setUploadFile(true);
-  }
-
-
   return (
     <div id='main'>
 
       <div id='navBar'>
-        <NavBar/>
+        <NavBar fileUploadStatusChanger={setUploadBar} status = {uploadBar} />
       </div>
 
     
@@ -77,7 +58,9 @@ function App() {
         <ChatHistory/>
       </div>
 
-      <div id='upload'>Upload</div>
+      <div id='upload'>This will contains the response from the backend.
+        {uploadBar && < FileInput onFileSelect={handlefileUpload} disabled={uploadFile} uploadChanger = {setUploadFile} setUpUploadBar = {setUploadBar}/>}
+      </div>
 
       <div id='typeBar'>
         <SearchBar/>
