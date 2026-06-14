@@ -1,101 +1,98 @@
-*{
-    text-decoration: none;
+* {
     margin: 0;
-    box-sizing: border-box;
     padding: 0;
+    box-sizing: border-box;
 }
 
 #main {
-    border: 5px solid black;
     height: 100vh;
-    padding: 2px;
-    margin: 2px;
-    background-color: rgb(128, 126, 126);
+    display: grid;
+    grid-template-columns: 250px 1fr;
+
+    grid-template-rows:
+        60px
+        1fr
+        auto;
+
+    grid-template-areas:
+        "navbar navbar"
+        "history upload"
+        "history typebar";
+    background-color: #808080;
 }
 
-.component{
+/* Navbar */
+#navBare {
+    grid-area: navbar;
+    background-color: #4a5757;
     display: flex;
-    justify-content: space-evenly;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.3rem;
 }
-#navBar{
-    flex-direction: row;
-    align-self: center;
-    width: 100%;
-    background-color: rgb(74, 87, 87);
-    text-align: center;
-}
-.chatandupload{
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-}
-
-#chatHistory{
-    background-color: rgb(128, 126, 126);
-    margin: 10px;
-    flex-grow: 1;
-}
-#chatHistory h2{
-    text-align: center;
-}
-
-
-.content{
-    height: 90vh;
-    flex-grow: 3;
-    background-color: rgb(128, 126, 126);
-    margin: 10px;
-    /* border: 2px solid black; */
-    display: flex;
-    flex-direction: column;
-}
-.content h2{
-    text-align: center;
-}
-#message{
-    align-self: center;
-    flex-grow: 1;
-}
-#searchBar{
-    align-self: center;
-    height: 30px;
-    width: 90%;
-    text-align: center;
-}
-#searchBar-box input{
+#navBar-display{
     width: 80%;
-    height: 50px;
-    border: 2px solid black;
-    border-radius: 30px;
-    font-size: 15px;
-    padding: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
 }
-
-
-#searchBar-box button{
-    margin-left: 10px;
+.navBarButton{
+    font-size: 0.8em;
+    padding: 10px;
+    box-shadow: 0px 4px 6px 0px rgba(0, 0, 0, 0.2);
+    border: 0.8px solid black;
+    border-radius: 5px;
+}
+.navBarButton:hover{
     background-color: black;
     color: white;
-    font-size: 40px;
-    border-radius: 50%;
-    padding-left: 20px;
-    padding-right: 20px;
-    margin-top: 5px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-}
-
-#searchBar-box button:hover{
-    background-color: white;
+    transition: 2px 4s ease-in-out;
     cursor: pointer;
-    transition: background-color 0.3s ease-in-out;
 }
 
-#fileupload{
+#navBarButton-upload:active::after{
+    content: "";
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: red;
+
+}
+
+#navBarButton-loginsign:active::after{
+    content: "";
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: red;
+}
+
+/* Chat History */
+#chatHistory {
+    grid-area: history;
+    background-color: #6f6f6f;
+    border-right: 1px solid #555;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+/* Main Content / Messages */
+#upload {
+    grid-area: upload;
+    background-color: white;
+    margin: 10px 10px 0 10px;
+    border-radius: 10px;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+/* Search Bar Area */
+#typeBar {
+    grid-area: typebar;
+    margin: 10px;
     display: flex;
-    flex-direction: column;
-    height: 20px;
-    width: 20px;
+    align-items: center;
 }
-
