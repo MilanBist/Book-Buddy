@@ -9,8 +9,8 @@
 #main {
     height: 99vh;
     display: grid;
-    grid-template-columns: 260px 1fr;
-    grid-template-rows: 60px 1fr 80px;
+    grid-template-columns: 450px 1fr;
+    grid-template-rows: 60px 0.95fr 80px;
 
     grid-template-areas:
         "navbar navbar"
@@ -41,7 +41,7 @@
 .navBarButton {
     padding: 8px 14px;
     font-size: 0.9rem;
-    background: #1f2937;
+    background: #000000;
     color: #e5e7eb;
     border: 1px solid #0a0a0a;
     border-radius: 8px;
@@ -78,17 +78,18 @@
 }
 
 .sidebarButton {
-    background-color: #111827;
+    width: 50%;
+    background-color: #131415;
     color: #e5e7eb;
-    padding: 10px;
-    border: 1px solid #1f2937;
+    padding: 12px;
+    border: 2px solid #191a1c;
     border-radius: 10px;
     cursor: pointer;
     transition: 0.2s ease;
 }
 
 .sidebarButton:hover {
-    background-color: #1f2937;
+    background-color: #090909;
 }
 
 /* Recents */
@@ -97,8 +98,7 @@
 }
 
 #recents h2 {
-    font-size: 14px;
-    color: #94a3b8;
+    color: #79c3b5;
     margin-bottom: 10px;
     text-align: left;
 }
@@ -111,10 +111,11 @@
 }
 
 #recents ul li {
-    padding: 8px 10px;
+    padding: 10px 12px;
+    font-size: large;
     border-radius: 8px;
-    background: #111827;
-    border: 1px solid #1f2937;
+    background: #151617;
+    border: 1px solid #070707;
     cursor: pointer;
     transition: 0.2s ease;
 }
@@ -130,7 +131,6 @@
     margin: 10px 10px 0 10px;
     border-radius: 12px;
     padding: 16px;
-    overflow-y: auto;
     border: 1px solid #1f2937;
 }
 
@@ -157,11 +157,10 @@
     flex: 1;
     padding: 15px;
     border-radius: 10px;
-    border: 1px solid #1f2937;
-    background: #0b1220;
+    border: 1px solid #525355;
+    background: #080808;
     color: white;
-    outline: none;
-    font-size: 17px;
+    font-size: 18px;
     resize: none;
 }
 
@@ -182,4 +181,96 @@
     background-color: rgb(16, 15, 15);
     transform: translateY(-1px);
 
+}
+
+
+
+/* Wrapper */
+#fileupload {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 720px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Focus effect (GPT-like) */
+#fileupload:focus-within {
+  border-color: #10a37f;
+  box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.15);
+}
+
+/* File input */
+.file_input_by_user {
+  flex: 1;
+  font-size: 14px;
+  color: #374151;
+  border: none;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 20px;
+}
+.file_input_by_user:hover{
+    background-color: rgb(231, 231, 242);
+}
+
+/* Hide ugly default file button */
+.file_input_by_user::-webkit-file-upload-button {
+  display: none;
+}
+.file_input_by_user::file-selector-button {
+  display: none;
+}
+
+/* Process button */
+#fileupload button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  transition: background 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+}
+
+/* Primary action */
+#fileupload button:first-of-type {
+  background: #10a37f;
+  color: #ffffff;
+}
+
+#fileupload button:first-of-type:hover:not(:disabled) {
+  background: #0e8f6f;
+}
+
+/* Cancel button */
+#fileupload button:last-of-type {
+  background: transparent;
+  color: #6b7280;
+}
+
+#fileupload button:last-of-type:hover:not(:disabled) {
+  color: #111827;
+}
+
+/* Disabled state */
+#fileupload button:disabled,
+.file_input_by_user:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Click feedback */
+#fileupload button:active:not(:disabled) {
+  transform: scale(0.97);
 }
