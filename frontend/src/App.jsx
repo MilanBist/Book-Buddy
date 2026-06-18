@@ -58,7 +58,7 @@ function App() {
         <ChatHistory/>
       </div>
 
-      <div id='upload'>This will contains the response from the backend.
+      <div id='upload'>
         {uploadBar && < FileInput onFileSelect={handlefileUpload} disabled={uploadFile} uploadChanger = {setUploadFile} setUpUploadBar = {setUploadBar}/>}
       </div>
 
