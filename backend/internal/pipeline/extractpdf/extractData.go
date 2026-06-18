@@ -13,7 +13,7 @@ import (
 func splitDocument(document string)([]string, error){
 	splitter := textsplitter.NewRecursiveCharacter(
 		textsplitter.WithChunkSize(1000),
-		textsplitter.WithChunkOverlap(150),
+		textsplitter.WithChunkOverlap(200),
 	)
 	chunks, err := splitter.SplitText(document)
 	if err != nil{

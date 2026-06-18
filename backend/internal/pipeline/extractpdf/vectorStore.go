@@ -11,7 +11,7 @@ import (
 	"github.com/tmc/langchaingo/llms/ollama"
 )
 
-func createEmbeddings(splittedDocx []string, s *models.Server) ([][]float32, error) {
+func CreateEmbeddings(splittedDocx []string, s *models.Server) ([][]float32, error) {
 	// create the ollama client
 	llm, err := ollama.New(
 		ollama.WithModel(s.Config.OllamaModel),
@@ -107,6 +107,7 @@ func createCollectionWithName(splittedDocx []string, embededBook [][]float32, s 
 			Id:       qdrant.NewIDNum(uint64(numId)),
 			Vectors:  qdrant.NewVectors(embededBook[i]...),
 			Payload:  qdrant.NewValueMap(map[string]any{
+				"text": splittedDocx[i],
 				"chunkId": strconv.Itoa(i+1),
 				"bookTitle": bookTitle,
 			}),
@@ -161,7 +162,7 @@ func VectorStore(splittedDocx []string, s *models.Server, fileName string) error
 	fmt.Println("Book title saved: ", bookTitle)
 
 	// first create the embedding of each of the given docx
-	response, err := createEmbeddings(splittedDocx, s)
+	response, err := CreateEmbeddings(splittedDocx, s)
 	if err != nil{
 		fmt.Println("Error in creating the embeddings.")
 		return err
