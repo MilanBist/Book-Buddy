@@ -12,7 +12,7 @@ type Store struct{
 }
 
 
-func LoadVectorDatabase(cfg *config.Config) (*Store, error) {
+func LoadVectorDatabase(cfg *config.Config) (*qdrant.Client, error) {
 	port, _ := strconv.Atoi(cfg.QdrantPort)
 	client, err := qdrant.NewClient(&qdrant.Config{
 		Host: "localhost",
@@ -27,5 +27,5 @@ func LoadVectorDatabase(cfg *config.Config) (*Store, error) {
 		store: client,
 	}
 
-	return store, nil
+	return store.store, nil
 }

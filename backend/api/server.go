@@ -3,27 +3,22 @@ package api
 import (
 	"net/http"
 	"time"
-
 	"github.com/MilanBist/AI-Powered-Book-Answerer/config"
-	"github.com/MilanBist/AI-Powered-Book-Answerer/db"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/qdrant/go-client/qdrant"
 )
 
-// type Server struct{
-// 	Router	*chi.Mux
-// 	Store	*db.Store
-// 	Config	*config.Config
-// }
+
 
 type Handler struct{
 	// declare the models here
 	server *models.Server
 }
 
-func NewServer(db *db.Store, cfg *config.Config) *models.Server{
+func NewServer(db *qdrant.Client, cfg *config.Config) *models.Server{
 	r := chi.NewRouter()
 
 
