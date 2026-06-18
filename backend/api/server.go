@@ -3,7 +3,6 @@ package api
 import (
 	"net/http"
 	"time"
-
 	"github.com/MilanBist/AI-Powered-Book-Answerer/config"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/go-chi/chi/v5"

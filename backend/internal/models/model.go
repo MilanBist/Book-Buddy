@@ -13,3 +13,7 @@ type Server struct{
 	Store	*qdrant.Client
 	Config	*config.Config
 }
+
+type Question struct{
+	Query string
+}
