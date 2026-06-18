@@ -13,7 +13,7 @@ import (
 func splitDocument(document string)([]string, error){
 	splitter := textsplitter.NewRecursiveCharacter(
 		textsplitter.WithChunkSize(1000),
-		textsplitter.WithChunkOverlap(150),
+		textsplitter.WithChunkOverlap(200),
 	)
 	chunks, err := splitter.SplitText(document)
 	if err != nil{
@@ -65,7 +65,7 @@ func ExtractData(file *multipart.File, filePath string, s *models.Server) error 
 
 
 	// store in the vector store
-	err = vectorStore(splittedDocx, s)
+	err = VectorStore(splittedDocx, s, filePath)
 
 
 	return nil

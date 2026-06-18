@@ -45,7 +45,6 @@ func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 		log.Fatal("Error in creating the file. ", err)
 	}
 
-
 	// make a copy of the file inside the given folder made above
 	_, err = io.Copy(copiedFile, file)
 	if err != nil{
@@ -62,6 +61,7 @@ func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	if err != nil{
 		fmt.Println(err)
 		http.Error(w, "Can't extract data from pdf", http.StatusInternalServerError)
+		return
 	}
 
 	// if no nil just return extraction and saving compelted
