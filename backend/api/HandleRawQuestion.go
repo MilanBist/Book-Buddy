@@ -32,6 +32,11 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 
 	// send this data to get the vector embeddings of it
 
+	// if the query is just nil
+	if userQuery.Query == ""{
+		w.Write([]byte("Empty query."))
+		return
+	}
 	ans, err := extractanswer.GenerateEmebedding(userQuery.Query, h.server)
 	if err != nil{
 		log.Fatal("Error in generating the embeddings.")
@@ -49,7 +54,6 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 
 	log.Println("Required Docx.")
 	// generate answers based on the given docx
-	log.Println(requiredDocx)
 	llmResponse, err := askllm.AskLLM(requiredDocx, userQuery.Query, h.server)
 
 

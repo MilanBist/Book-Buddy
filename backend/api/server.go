@@ -68,7 +68,7 @@ func(h *Handler) setupRoutes(){
 			r.Post("/handlePdf", h.HandleRawPdfFile)
 
 			// get the question -> create embedding -> extract relevant data from the vector db
-			r.Get("/extractDocuments", h.HandleRawQuestion)
+			r.Post("/extractDocuments", h.HandleRawQuestion)
 		})
   	
 	//
