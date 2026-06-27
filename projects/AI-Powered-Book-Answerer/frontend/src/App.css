@@ -1,0 +1,90 @@
+*{
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+}
+
+body{
+    background-color: black;
+    color: white;
+}
+
+#grid-container{
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 400px 1fr ;
+    grid-template-rows: 75px 0.95fr 80px;
+
+    grid-template-areas:
+        "navBar navBar"
+        "chat-history answer-section"
+        "chat-history typeBar";
+
+    background:radial-gradient(circle at top,#191a1d,#0b1120 45%);
+}
+
+.grid-childs{
+    /* background-color: yellow; */
+    margin: 10px;
+}
+#navBar{
+    grid-area: navBar;
+}
+#navBar-display{
+    padding: 10px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+#navBar .button{
+    padding: 10px;
+}
+
+
+#chat-history{
+    grid-area: chat-history;
+    background:radial-gradient(circle at top,#191a1d,#0b1120 45%);
+    overflow: scroll;
+}
+
+#chat-history h2{
+    margin: 4px;
+    text-align: center;
+}
+#chat-history .button{
+    padding: 10px;
+    margin: 5px;
+    margin-top:10px;
+    margin-bottom:10px;
+    width: 80%;
+    text-align: center;
+}
+
+#chat-history ul{
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(90deg,rgba(22, 25, 26, 1) 0%, rgba(37, 78, 87, 1) 100%);
+    margin: 10px;
+    list-style-type: none;
+
+}
+#chat-history ul li{
+    margin: 5px;
+    text-align: center;
+}
+/* Answer section */
+#answer-section{
+    grid-area: answer-section;
+    background:radial-gradient(circle at top,#191a1d,#0b1120 45%);
+
+}
+
+/* Type bar section */
+#typeBar{
+    grid-area: typeBar;
+    margin-left: 20px;
+    display: flex;
+    flex-direction: row;
+}
