@@ -1,0 +1,8 @@
+# get the environment file to ignore
+.env
+
+backend/qdrant_storage/
+*.db
+*.dat
+*.wal
+*.json
