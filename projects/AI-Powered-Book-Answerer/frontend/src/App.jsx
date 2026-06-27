@@ -31,7 +31,6 @@ function App() {
 
 
 
-
   // when the processing is being done by the backend
   const [isPrompting, setIsPrompting] = useState(false);
 
@@ -93,7 +92,6 @@ function App() {
           ]
         });
       }
-
       console.log(message);
     } catch(err){
       console.log("Reaching to this catch point.")
@@ -122,16 +120,21 @@ function App() {
             setUpUploadBar = {setUploadBar}/>}
       </div>
         <div id='mainContent'>
-          {!isPrompting ? (message.map((m, index) =>{
+          {isPrompting ? (
+            (message.map((m, index) =>{
             return(
             <div key={index} className={`chat-message ${m.role}`}>
               <ReactMarkdown>{m.content}</ReactMarkdown>
             </div>
             )
-            })) :(
-              <p>Loading...</p>
+          }))
+          ) : (message.map((m, index) =>{
+            return(
+            <div key={index} className={`chat-message ${m.role}`}>
+              <ReactMarkdown>{m.content}</ReactMarkdown>
+            </div>
             )
-          }
+          }))}
         </div>
       </div>
 
