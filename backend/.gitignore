@@ -6,3 +6,11 @@ backend/qdrant_storage/
 *.dat
 *.wal
 *.json
+
+
+# // add the uploadedBooks folder as well
+uploadedFiles/
+
+
+# Add the output.txt file as well
+output/
