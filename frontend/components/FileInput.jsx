@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 import "../styles/button.css"
->>>>>>> fc0f258 (All commit saved)
 import { useState } from "react";
 
 export default function FileInput({onFileSelect, disabled, uploadChanger, setUpUploadBar}){
@@ -44,12 +41,6 @@ export default function FileInput({onFileSelect, disabled, uploadChanger, setUpU
                 disabled={disabled}
                 className="file_input_by_user"
             />
-<<<<<<< HEAD
-            <button onClick={submitFile} disabled = {disabled}>
-                Process
-            </button>
-            <button onClick={disableUploadField}>Cancel</button>
-=======
             <br />
             <div className="fileuploadbuttons">
                 <button onClick={submitFile} disabled = {disabled} className="button">
@@ -57,7 +48,6 @@ export default function FileInput({onFileSelect, disabled, uploadChanger, setUpU
                 </button>
                 <button onClick={disableUploadField} className="button">Cancel</button>
             </div>
->>>>>>> fc0f258 (All commit saved)
         </div>
     )
 }
