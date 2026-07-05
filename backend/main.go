@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
 	"github.com/MilanBist/AI-Powered-Book-Answerer/api"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/config"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/db"

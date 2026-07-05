@@ -69,6 +69,13 @@ func(h *Handler) setupRoutes(){
 
 			// get the question -> create embedding -> extract relevant data from the vector db
 			r.Post("/extractDocuments", h.HandleRawQuestion)
+
+
+			r.Post("/login", h.HandleRawQuestion)
+
+
+			r.Post("/register", h.HandleRawQuestion)
+
 		})
   	
 	//

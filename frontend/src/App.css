@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 
 * {
@@ -366,3 +367,260 @@
   transform: scale(0.97);
 }
 
+=======
+*{
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+}
+
+body{
+    background-color: black;
+    color: white;
+}
+
+#grid-container{
+    height: 100vh;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 400px 1fr ;
+    grid-template-rows: 75px 1fr 80px;
+
+    grid-template-areas:
+        "navBar navBar"
+        "chat-history answer-section"
+        "chat-history typeBar";
+
+    background:radial-gradient(circle at top,#191a1d,#0b1120 45%);
+}
+
+.grid-childs{
+    /* background-color: yellow; */
+    margin: 10px;
+}
+#navBar{
+    grid-area: navBar;
+}
+#navBar-display{
+    padding: 10px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+#navBar .button{
+    padding: 10px;
+}
+
+
+#chat-history{
+    grid-area: chat-history;
+    background:radial-gradient(circle at top,#191a1d,#0b1120 45%);
+    overflow: auto;
+}
+
+#chat-history h2{
+    margin: 4px;
+    text-align: center;
+}
+#chat-history .button{
+    padding: 10px;
+    margin: 5px;
+    margin-top:10px;
+    margin-bottom:10px;
+    width: 80%;
+    text-align: center;
+}
+
+#chat-history ul{
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(90deg,rgba(22, 25, 26, 1) 0%, rgba(37, 78, 87, 1) 100%);
+    margin: 10px;
+    list-style-type: none;
+
+}
+#chat-history ul li{
+    margin: 5px;
+    text-align: center;
+}
+/* Answer section */
+#answer-section{
+    grid-area: answer-section;
+    position: relative;
+    /* background:radial-gradient(circle at top,#191a1d,#0b1120 45%); */
+    /* background-color: green; */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+}
+
+/* #answer-section #main-content{
+    position: absolute;
+    background-color: purple;
+} */
+
+#answer-section #uploadBar{
+    position: absolute;
+    background-color: rgb(14, 15, 14);
+    left: 20%;
+    right: 20%;
+    top: 30%;
+}
+
+#fileupload{
+    display: flex;
+    flex-direction: column;
+    border: 2px solid white;
+    padding: 10px;
+    color: white;
+    font-size: 18px;
+}
+
+#fileupload input[type="file"] {
+  position: relative;
+  padding: 10px;
+  margin: 10px;
+}
+
+#fileupload input[type="file"]::file-selector-button {
+  width: 136px;
+  color: transparent;
+}
+
+/* Faked label styles and icon */
+#fileupload input[type="file"]::before {
+  position: absolute;
+  pointer-events: none;
+  top: 10px;
+  left: 16px;
+  height: 20px;
+  width: 20px;
+  content: "";
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230964B0'%3E%3Cpath d='M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5-5 5z'/%3E%3C/svg%3E");
+}
+
+#fileupload input[type="file"]::after {
+  position: absolute;
+  pointer-events: none;
+  top: 11px;
+  left: 40px;
+  color: #0964b0;
+  content: "Upload File";
+}
+
+
+/* file upload button */
+#fileupload input[type="file"]::file-selector-button {
+  border-radius: 4px;
+  padding: 0 16px;
+  height: 40px;
+  cursor: pointer;
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.05);
+  margin-right: 16px;
+  transition: background-color 200ms;
+}
+
+/* file upload button hover state */
+#fileupload input[type="file"]::file-selector-button:hover {
+  background-color: #f3f4f6;
+}
+
+/* file upload button active state */
+#fileupload input[type="file"]::file-selector-button:active {
+  background-color: #e5e7eb;
+}
+
+#fileupload .fileuploadbuttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+
+
+
+/* for the main part of the user and the ai conversation*/
+
+/* Whole chat area */
+#mainContent {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background: #0d1117;
+    flex:1;
+    overflow-y:auto;
+    padding:20px;
+}
+
+/* Shared styles */
+.chat-message {
+    max-width: 75%;
+    padding: 14px 18px;
+    border-radius: 16px;
+    color: white;
+    line-height: 1.6;
+    word-wrap: break-word;
+    font-size: 15px;
+}
+
+/* Assistant */
+.chat-message.assistant {
+    align-self: flex-start;
+    background: #1c2128;
+    border: 1px solid #30363d;
+}
+
+/* User */
+.chat-message.user {
+    align-self: flex-end;
+    background: #28292b;
+}
+
+/* Markdown */
+.chat-message p {
+    margin: 0;
+}
+
+.chat-message pre {
+    background: #111827;
+    padding: 12px;
+    border-radius: 10px;
+    overflow-x: auto;
+}
+
+.chat-message code {
+    background: #111827;
+    padding: 2px 6px;
+    border-radius: 5px;
+}
+
+.chat-message ul,
+.chat-message ol {
+    padding-left: 20px;
+}
+
+.chat-message h1,
+.chat-message h2,
+.chat-message h3 {
+    margin-top: 10px;
+}
+
+.chat-message a {
+    color: #58a6ff;
+}
+
+
+/* Type bar section */
+#typeBar{
+    grid-area: typeBar;
+    margin-left: 20px;
+    display: flex;
+    flex-direction: row;
+}
+>>>>>>> fc0f258 (All commit saved)

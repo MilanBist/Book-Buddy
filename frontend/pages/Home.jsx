@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-import './App.css'
+import '../src/App.css'
 import { useState } from 'react'
 import axios from 'axios';
 import FileInput from '../components/FileInput';
@@ -8,9 +7,8 @@ import NavBar from '../components/NavBar';
 import ChatHistory from '../components/ChatHistory';
 import ReactMarkdown from "react-markdown";
 
-function App() {
+export default function Home() {
 
- 
   // for the uploading of the file through form
   const [isUploading, setIsUploading] = useState(false);
 
@@ -29,7 +27,6 @@ function App() {
   // for setting the data to the main place
   const [data, setData] = useState("");
   const [message, setMessage] = useState([]);
-
 
 
 
@@ -94,7 +91,6 @@ function App() {
           ]
         });
       }
-
       console.log(message);
     } catch(err){
       console.log("Reaching to this catch point.")
@@ -103,63 +99,48 @@ function App() {
     
   }
   return (
-    <div id='main'>
-      <div id='navBar'>
-        <div id='uploadBar'>
+    <div id='grid-container'>
+
+      <div className='grid-childs' id='navBar'>
+        <NavBar fileUploadStatusChanger={setUploadBar} status = {uploadBar} />
+      </div>
+    
+      <div className='grid-childs' id='chat-history'>
+        <ChatHistory/>
+      </div>
+
+      <div className='grid-childs' id='answer-section'>
+
+      <div id='uploadBar'>
           {uploadBar && < FileInput 
             onFileSelect={handlefileUpload} 
             disabled={uploadFile} 
             uploadChanger = {setUploadFile} 
             setUpUploadBar = {setUploadBar}/>}
       </div>
-        <NavBar fileUploadStatusChanger={setUploadBar} status = {uploadBar} />
+        <div id='mainContent'>
+          {isPrompting ? (
+            (message.map((m, index) =>{
+            return(
+            <div key={index} className={`chat-message ${m.role}`}>
+              <ReactMarkdown>{m.content}</ReactMarkdown>
+            </div>
+            )
+          }))
+          ) : (message.map((m, index) =>{
+            return(
+            <div key={index} className={`chat-message ${m.role}`}>
+              <ReactMarkdown>{m.content}</ReactMarkdown>
+            </div>
+            )
+          }))}
+        </div>
       </div>
 
-    
-      <div id='chatHistory'>
-        <h2 id='chathead'>CHAT HISTORY</h2>
-        <ChatHistory/>
-      </div>
-
-      <div id='upload'>
-        {/* chathistory */}
-        {!isPrompting ? (message.map((m, index) =>{
-          return(
-          <div key={index} className={`chat-message ${m.role}`}>
-            <ReactMarkdown>{m.content}</ReactMarkdown>
-          </div>
-          )
-        })) :(
-          <p>Loading...</p>
-        )
-      }
-        
-        
-      </div>
-
-      <div id='typeBar'>
+      <div id='typeBar' className='grid-childs'>
         <SearchBar handlePrompt = {promptUpload} setPromptInput = {setPromptInput} promptInput={promptInput}/>
       </div>
 
     </div>
   )
 }
-
-=======
-import './App.css';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import SignUpForm from '../pages/Signup';
-import LoginForm from '../pages/Login';
-import Home from '../pages/Home'
-function App() {
-  return (
-        <Routes>
-          <Route path="/" element={<Home/>} />
-          <Route path="/login" element={<LoginForm />} />
-          <Route path="/signup" element={<SignUpForm />} />
-        </Routes>
-    
-  );
-}
->>>>>>> fc0f258 (All commit saved)
-export default App;

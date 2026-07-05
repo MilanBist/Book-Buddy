@@ -1,5 +1,11 @@
 // show the search bar after the vector database is saved successfully
+<<<<<<< HEAD
 
+=======
+import '../styles/searchBar.css'
+
+import { ArrowUp } from 'lucide-react';
+>>>>>>> fc0f258 (All commit saved)
 
 export default function SearchBar({handlePrompt, setPromptInput, promptInput}){
     // make the search bar to be shown
@@ -34,8 +40,14 @@ export default function SearchBar({handlePrompt, setPromptInput, promptInput}){
     }
     return(
         <div id="searchBar-box">
+<<<<<<< HEAD
             <textarea  name="search" id="search" placeholder="Type your query........" onChange={handleChange} value={promptInput} onKeyDown={handleKeyDown}></textarea>
             <button type="submit" onClick={handleSearchClick}><h2>↑</h2></button>
+=======
+            <textarea  name="search" className="search-label" placeholder="Type your query........" onChange={handleChange} value={promptInput} onKeyUp={handleKeyDown}></textarea>
+            <ArrowUp onClick={handleSearchClick} size={30} id='arrowup'/>
+            {/* <button type="submit" onClick={handleSearchClick}><h2>↑</h2></button> */}
+>>>>>>> fc0f258 (All commit saved)
         </div>
     )
 }
