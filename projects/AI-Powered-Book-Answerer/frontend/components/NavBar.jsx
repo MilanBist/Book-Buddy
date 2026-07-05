@@ -1,4 +1,5 @@
 import '../styles/button.css'
+import { Link } from 'react-router-dom';
 
 export default function NavBar({fileUploadStatusChanger, status} ){
     const styles = {
@@ -17,7 +18,7 @@ export default function NavBar({fileUploadStatusChanger, status} ){
     return(
         <div style={styles} id="navBar-display">
             <button class="button" id="navBarButton-upload" onClick={handleUploadClick}>FileUpload</button>
-            <button class="button"  id="navBarButton-loginsign">Login/Signup</button>
+            <Link to='/login'><button class="button"  id="navBarButton-loginsign">Login/Signup</button></Link>
         </div>
     )
 }
