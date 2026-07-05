@@ -78,8 +78,6 @@ export default function LoginForm(){
         }
 
 
-    // console.log("Email is : ", email);
-    // console.log("Password: ", password);
     const bodyMap = {
         userEmail: email,
         userPassword: password
