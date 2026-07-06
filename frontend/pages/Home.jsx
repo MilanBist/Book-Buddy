@@ -99,17 +99,17 @@ export default function Home() {
     
   }
   return (
-    <div id='grid-container'>
+    <div id='main'>
 
-      <div className='grid-childs' id='navBar'>
+      <div id='navBar'>
         <NavBar fileUploadStatusChanger={setUploadBar} status = {uploadBar} />
       </div>
     
-      <div className='grid-childs' id='chat-history'>
+      <div id='chatHistory'>
         <ChatHistory/>
       </div>
 
-      <div className='grid-childs' id='answer-section'>
+      <div id='answer-section'>
 
       <div id='uploadBar'>
           {uploadBar && < FileInput 
@@ -118,23 +118,19 @@ export default function Home() {
             uploadChanger = {setUploadFile} 
             setUpUploadBar = {setUploadBar}/>}
       </div>
-        <div id='mainContent'>
-          {isPrompting ? (
-            (message.map((m, index) =>{
-            return(
-            <div key={index} className={`chat-message ${m.role}`}>
-              <ReactMarkdown>{m.content}</ReactMarkdown>
-            </div>
-            )
-          }))
-          ) : (message.map((m, index) =>{
-            return(
-            <div key={index} className={`chat-message ${m.role}`}>
-              <ReactMarkdown>{m.content}</ReactMarkdown>
-            </div>
-            )
-          }))}
-        </div>
+      <div id="mainContent">
+        {message.map((m, index) => (
+          <div key={index} className={`chat-message ${m.role}`}>
+            <ReactMarkdown>{m.content}</ReactMarkdown>
+          </div>
+        ))}
+
+        {isPrompting && (
+          <div className="chat-message assistant typing">
+            Thinking...
+          </div>
+        )}
+      </div>
       </div>
 
       <div id='typeBar' className='grid-childs'>

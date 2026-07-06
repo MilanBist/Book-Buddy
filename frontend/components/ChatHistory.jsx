@@ -11,28 +11,33 @@ export default function ChatHistory(){
 
     return(
         <div id="sideBar" >
-            <h2>CHAT</h2>
+            <h2>CHAT HISTORY</h2>
+
             <div id="newChat">
                 <button className="button">New Chat</button>
             </div>
             <div id="searchChat">
                 <button className="button">Search Chat</button>
             </div>
-            <div id="recents">
-                <h2 >Recents</h2>
-                <ul>                    
-                    <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                    <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                    <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                    <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                    <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                    <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                    <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                    <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                    <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                    <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                   
-                </ul>
+
+            <div id='sidebar-bottom'>
+
+                <div id="recents">
+                    <h2 >Recents</h2>
+                    <ul>                    
+                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
+                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
+                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
+                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
+                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
+                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
+                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
+                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
+                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
+                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
+                    
+                    </ul>
+                 </div>
             </div>
         </div>
     )

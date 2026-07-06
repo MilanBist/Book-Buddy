@@ -37,7 +37,7 @@ export default function SearchBar({handlePrompt, setPromptInput, promptInput}){
     return(
         <div id="searchBar-box">
             <textarea  name="search" className="search-label" placeholder="Type your query........" onChange={handleChange} value={promptInput} onKeyUp={handleKeyDown}></textarea>
-            <ArrowUp onClick={handleSearchClick} size={30} id='arrowup'/>
+            <ArrowUp onClick={handleSearchClick} size={50} id='arrowup'/>
             {/* <button type="submit" onClick={handleSearchClick}><h2>↑</h2></button> */}
         </div>
     )

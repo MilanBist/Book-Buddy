@@ -19,8 +19,18 @@
         "history upload"
         "history typebar";
 
-    background-color: #0c0c0c; /* deep modern navy */
     color: #e5e7eb;
+
+        background-image:
+        linear-gradient(
+            rgba(0,0,0,.75),
+            rgba(0,0,0,.75)
+        ),
+        url("https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1600&q=80");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 /* ===== Navbar ===== */
@@ -127,81 +137,169 @@
 }
 
 /* ===== Main Chat Area ===== */
-#upload {
+#answer-section{
     grid-area: upload;
-    background-color: #0f1012;
     margin: 10px 10px 0 10px;
     border-radius: 12px;
-    padding: 16px;
-    border: 1px solid #1f2937;
-    /* Chat layout */
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    /* Scroll handling */
     overflow-y: auto;
     scroll-behavior: smooth;
 }
 
+/* ================= Upload Bar ================= */
+
 #uploadBar{
-    position: sticky;
-  top: 0;
-  z-index: 20;
-  background: #111827;
-  padding: 14px;
-  border-bottom: 1px solid #1f2937;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-  /* highlight */
-  box-shadow: 0 0 0 1px #2563eb,
-              0 8px 24px rgba(37, 99, 235, 0.35);
+    width: 100%;
 
-  animation: slideDown 0.25s ease-out;
+    padding: 30px 20px;
+
+    animation: slideDown .25s ease-out;
 }
 
-/* ===== Chat Message Base ===== */
-.chat-message {
-    max-width: 70%;
-    padding: 12px 14px;
-    border-radius: 12px;
-    font-size: 15px;
-    line-height: 1.5;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    animation: fadeIn 0.2s ease-in-out;
+/* Upload Box */
+
+#fileupload{
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    background: #181818;
+    border: 1px solid #2b2b2b;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.45);
+    transition: .25s;
 }
 
-/* ===== User Message ===== */
-.chat-message.user {
-    align-self: flex-end;
-    background-color: #084620;
-    color: #ffffff;
-    border-bottom-right-radius: 4px;
+#fileupload:hover{
+    border-color:#444;
 }
 
-/* ===== Assistant Message ===== */
-.chat-message.assistant {
-    align-self: flex-start;
-    background-color: #0a4121;
-    color: #e5e7eb;
-    /* background-image: url(); */
-    border-bottom-left-radius: 4px;
+#fileupload:focus-within{
+    border-color:#10a37f;
+    box-shadow:
+        0 0 0 2px rgba(16,163,127,.2),
+        0 10px 30px rgba(0,0,0,.5);
+}
+
+/* File Input */
+
+.file_input_by_user{
+    flex:1;
+    background:transparent;
+    color:#ffffff;
+    border:none;
+    outline:none;
+    font-size:15px;
+    cursor:pointer;
+}
+
+/* Hide default file button */
+
+.file_input_by_user::file-selector-button{
+    display:none;
+}
+
+.file_input_by_user::-webkit-file-upload-button{
+    display:none;
+}
+
+/* Buttons */
+
+#fileupload button{
+
+    padding:10px 18px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#10a37f;
+
+    color:white;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+#fileupload button:hover{
+    background:#0d8f6d;
+    transform:translateY(-2px);
+}
+
+#fileupload button:active{
+    transform:scale(.96);
+}
+
+/* ================= Messages ================= */
+
+
+#mainContent{
+    display: flex;
+    flex-direction: column;
+}
+.chat-message{
+    max-width:75%;
+    padding:16px 20px;
+    margin:8px 0;
+    border-radius:18px;
+    line-height:1.7;
+    color:white;
+    overflow-wrap:break-word;
+    animation:fadeIn .25s ease;
+    border:1px solid #2f2f2f;
+    box-shadow:0 6px 18px rgba(0,0,0,.25);
+}
+
+/* User */
+
+.chat-message.user{
+    align-self:flex-end;
+    background:#2a2a2a;
+    border-bottom-right-radius:6px;
+}
+
+/* Assistant */
+
+.chat-message.assistant{
+    align-self:flex-start;
+    background:#171717;
+    border-bottom-left-radius:6px;
+}
+
+.chat-message:hover{
+    border-color:#444;
+    transform:translateY(-1px);
+    transition:.2s;
+}
+
+.chat-message.typing {
+    opacity: 0.7;
+    font-style: italic;
 }
 
 /* ===== Scrollbar Styling ===== */
-#upload::-webkit-scrollbar {
+#answer-section::-webkit-scrollbar {
     width: 6px;
 }
 
-#upload::-webkit-scrollbar-track {
+#answer-section::-webkit-scrollbar-track {
     background: transparent;
 }
 
-#upload::-webkit-scrollbar-thumb {
+#answer-section::-webkit-scrollbar-thumb {
     background-color: #374151;
     border-radius: 8px;
 }
 
-#upload::-webkit-scrollbar-thumb:hover {
+#answer-section::-webkit-scrollbar-thumb:hover {
     background-color: #4b5563;
 }
 
@@ -225,55 +323,12 @@
     }
 }
 
-/* ===== Input Bar ===== */
-#typeBar {
-    grid-area: typebar;
-    width: 100%;
-    margin-top: 10px;
-    margin-right: 10px;
-    margin-left: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#searchBar-box {
-    width: 80%;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-#searchBar-box textarea {
-    flex: 1;
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px solid #525355;
-    background: #080808;
-    color: white;
-    font-size: 18px;
-    resize: none;
-}
-
-#searchBar-box button {
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 1px solid #1f2937;
-    background: #0b1220;
-    color: white;
-    cursor: pointer;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 
 #searchBar-box button:hover {
     background-color: rgb(16, 15, 15);
     transform: translateY(-1px);
 
 }
-
 
 
 /* Wrapper */
@@ -291,7 +346,7 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Focus effect (GPT-like) */
+/* Focus effect) */
 #fileupload:focus-within {
   border-color: #10a37f;
   box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.15);
@@ -364,5 +419,39 @@
 /* Click feedback */
 #fileupload button:active:not(:disabled) {
   transform: scale(0.97);
+}
+
+
+
+
+/* ===== Input Bar ===== */
+#typeBar {
+    grid-area: typebar;
+    width: 100%;
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    
+}
+
+#searchBar-box {
+    width: 80%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#searchBar-box textarea {
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #525355;
+    background: #080808;
+    color: white;
+    font-size: 18px;
+    resize: none;
 }
 
