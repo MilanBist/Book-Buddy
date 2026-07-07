@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-func GeneratePromptAugmentation(docx []string, query string)(string, error){
+func QueryAnswerPrompt(docx []string, query string)(string, error){
 	prompt := `
 		You are an expert, friendly, and professional assistant .
 		Your role is to help the user clearly understand concepts and questions 

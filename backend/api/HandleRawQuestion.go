@@ -20,23 +20,51 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 	// get the data from the form and work upon it
 
 	// Answer the question by the user
-	var userQuery models.Question
+	var userQuery *models.Question
 	// now decode the data
 	json.NewDecoder(r.Body).Decode(&userQuery)
 
-
-	// as the question is decoded
-	// make a combined Augementation with the user query + ceratin format
-	// fetch the all best 10 chunks and send it to the llm model
-	// get the response here in this position and return to the frontend
-
-	// send this data to get the vector embeddings of it
 
 	// if the query is just nil
 	if userQuery.Query == ""{
 		w.Write([]byte("Empty query."))
 		return
 	}
+	// // convert the given query to english language
+	// if userQuery.Language != "English"{
+	// 	// first convert the language to the english language
+
+	// }
+	// check if the userQuery is of which language
+	language, err := askllm.CheckLanguage(userQuery.Query, h.server)
+
+	if err != nil{
+		log.Println(err)
+		return
+	} 
+
+	// after that I will get the language of the given prompt
+	// if the language is english just continue if not just convert
+	// the given provided language to english but semantic emotions in it
+	// must be preserved
+
+	if language != "English"{
+		// now convert the given userQuery to the English string
+		// convert the user query  to english
+		englishQuery, err := askllm.ConvertToEnglish(userQuery.Query, h.server)
+		if err != nil{
+			log.Println(err)
+			return
+		}
+		
+		// now set the userQuery be english query
+		userQuery.Query = englishQuery
+	}
+
+
+	// now since the question asked is converted in the english
+
+
 	ans, err := extractanswer.GenerateEmebedding(userQuery.Query, h.server)
 	if err != nil{
 		log.Fatal("Error in generating the embeddings.")

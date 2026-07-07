@@ -9,7 +9,6 @@ import (
 	"github.com/tmc/langchaingo/llms/ollama"
 )
 
-
 func GenerateResult(prompt string, h *models.Server) (string, error){
 	// get the ollma model for the answer generation
 	model := h.Config.OllamaModel
@@ -23,7 +22,7 @@ func GenerateResult(prompt string, h *models.Server) (string, error){
 		return "", err
 	}
 
-	completion, err := llms.GenerateFromSinglePrompt(
+	answer, err := llms.GenerateFromSinglePrompt(
 		context.Background(),
 		llm,
 		prompt,
@@ -35,7 +34,6 @@ func GenerateResult(prompt string, h *models.Server) (string, error){
 		return "", err
 	}
 
-
-	return completion, err
+	return answer, err
 
 }

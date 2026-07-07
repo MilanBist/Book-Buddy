@@ -9,6 +9,9 @@ import ReactMarkdown from "react-markdown";
 
 export default function Home() {
 
+  // for the language specifically
+  const [language, setLanguage] = useState("English");
+
   // for the uploading of the file through form
   const [isUploading, setIsUploading] = useState(false);
 
@@ -27,7 +30,6 @@ export default function Home() {
   // for setting the data to the main place
   const [data, setData] = useState("");
   const [message, setMessage] = useState([]);
-
 
 
   // when the processing is being done by the backend
@@ -71,12 +73,18 @@ export default function Home() {
     // main task here is to  get the data from the prompt input bar and send
     // to the backend localhost/api/extractAnswer or like that
 
+    // data to send with the prompt
+    const userPrompt  = {
+      query: promptInput,
+      language: language,
+    };
+
+    console.log(userPrompt);
+
     try{
       setPromptInput("");
       setIsPrompting(true);
-      const response =  await axios.post("http://localhost:8080/api/extractDocuments", {
-        Query: promptInput,
-      });
+      const response =  await axios.post("http://localhost:8080/api/extractDocuments", userPrompt);
 
       const result = response.data["Response"];
       setIsPrompting(false);
@@ -134,7 +142,7 @@ export default function Home() {
       </div>
 
       <div id='typeBar' className='grid-childs'>
-        <SearchBar handlePrompt = {promptUpload} setPromptInput = {setPromptInput} promptInput={promptInput}/>
+        <SearchBar handlePrompt = {promptUpload} setPromptInput = {setPromptInput} promptInput={promptInput} setLanguage = {setLanguage}/>
       </div>
 
     </div>

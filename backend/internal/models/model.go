@@ -17,7 +17,8 @@ type Server struct{
 }
 
 type Question struct{
-	Query string
+	Query 		string	`json:"query"`
+	Language 	string	`json:"language"`
 }
 
 type Login struct{
