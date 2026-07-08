@@ -11,11 +11,6 @@ import (
 	extractanswer "github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/extractAnswer"
 )
 
-
-// type llmResponse map[string]string
-
-// question must be sent in the json format
-
 func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 	// get the data from the form and work upon it
 
@@ -23,7 +18,6 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 	var userQuery *models.Question
 	// now decode the data
 	json.NewDecoder(r.Body).Decode(&userQuery)
-
 
 	// if the query is just nil
 	if userQuery.Query == ""{
@@ -33,7 +27,6 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 	// // convert the given query to english language
 	// if userQuery.Language != "English"{
 	// 	// first convert the language to the english language
-
 	// }
 	// check if the userQuery is of which language
 	language, err := askllm.CheckLanguage(userQuery.Query, h.server)
@@ -55,22 +48,17 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 		if err != nil{
 			log.Println(err)
 			return
-		}
-		
+		}		
+
 		// now set the userQuery be english query
 		userQuery.Query = englishQuery
 	}
-
-
 	// now since the question asked is converted in the english
-
 
 	ans, err := extractanswer.GenerateEmebedding(userQuery.Query, h.server)
 	if err != nil{
 		log.Fatal("Error in generating the embeddings.")
 	}
-	// fmt.Println(ans)
-
 
 	// with the help of the given ans as the embeddings now return the 
 	// top 10 splitted docx realted to this one
@@ -85,16 +73,22 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 	llmResponse, err := askllm.AskLLM(requiredDocx, userQuery.Query, h.server)
 
 
-	fmt.Println(llmResponse)
+	// response the required docx with the language in which the user wants it
+	newResponse, err := askllm.GenerateInRequiredLanguage(llmResponse, userQuery.Language, h.server)
+	if err != nil{
+		log.Println("Error in generating in required language.")
+		return
+	}
+
+	log.Println(newResponse)
+
 
 	// return this response to the frontend
-	result := map[string]string{"Response": llmResponse}
+	result := map[string]string{"Response": newResponse}
 	err = json.NewEncoder(w).Encode(result)
 	if err != nil{
 		fmt.Println("Error in encoding the response.")
 		return
 	}
 
-	fmt.Println("[RESPONSE SENT] to the frontend.")
-	
 }
