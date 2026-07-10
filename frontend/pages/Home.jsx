@@ -29,7 +29,10 @@ export default function Home() {
 
   // for setting the data to the main place
   const [data, setData] = useState("");
-  const [message, setMessage] = useState([]);
+  const [message, setMessage] = useState([
+      { role: "user", content: "" },
+      { role: "assistant", content: ""}
+  ]);
 
 
   // when the processing is being done by the backend
@@ -64,15 +67,19 @@ export default function Home() {
   const promptUpload = async () =>{
     console.log("Incoming prompt: ",promptInput);
     // set the user message here
-    setMessage(prev=>{
-      return [
-        ...prev,
-        {role: "user", content: promptInput}
-      ]
-    });
+    setMessage(prev => [
+    ...prev,
+    {
+        role: "user",
+        content: promptInput
+    },
+    // {
+    //     role: "assistant",
+    //     content: ""
+    // }
+]);
     // main task here is to  get the data from the prompt input bar and send
     // to the backend localhost/api/extractAnswer or like that
-
     // data to send with the prompt
     const userPrompt  = {
       query: promptInput,
@@ -82,29 +89,46 @@ export default function Home() {
     console.log(userPrompt);
 
     try{
+      // set the prompt to be nil
+      // set is prompting to be true
+
       setPromptInput("");
       setIsPrompting(true);
-      const response =  await axios.post("http://localhost:8080/api/extractDocuments", userPrompt);
+      const response =  await fetch("http://localhost:8080/api/extractAnswer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userPrompt),
+      });
 
-      const result = response.data["Response"];
-      setIsPrompting(false);
-      if(result !=  null){
-        setData(result);
+      // as the response now in the form of the stream so work according to it
+      // set a reader and decoder
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
 
-        console.log(result);
-        setMessage(prev=>{
-          return [
-          ...prev,
-          {role: "assistant", content: result}
-          ]
-        });
-      }
-      console.log(message);
+      while (true) {
+        // get the streaming data
+        const { done, value } = await reader.read();
+
+        // decode the given data 
+        const chunk = decoder.decode(value, {stream: true});
+
+        // if finished reading the stream data
+        if (done) break;
+          setMessage(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1].content += chunk;
+            return updated;
+          });
+
+        console.log("Message is: ", message);
+        }
+        setIsPrompting(false);
     } catch(err){
       console.log("Reaching to this catch point.")
       console.log(err);
     }
-    
   }
   return (
     <div id='main'>
@@ -119,26 +143,26 @@ export default function Home() {
 
       <div id='answer-section'>
 
-      <div id='uploadBar'>
+        <div id='uploadBar'>
           {uploadBar && < FileInput 
             onFileSelect={handlefileUpload} 
             disabled={uploadFile} 
             uploadChanger = {setUploadFile} 
             setUpUploadBar = {setUploadBar}/>}
-      </div>
-      <div id="mainContent">
-        {message.map((m, index) => (
-          <div key={index} className={`chat-message ${m.role}`}>
-            <ReactMarkdown>{m.content}</ReactMarkdown>
-          </div>
-        ))}
+        </div>
+        <div id="mainContent">
+          {message.map((m, index) => (
+            <div key={index} className={`chat-message ${m.role}`}>
+              <ReactMarkdown>{m.content}</ReactMarkdown>
+            </div> 
+          ))}
 
-        {isPrompting && (
-          <div className="chat-message assistant typing">
-            Thinking...
-          </div>
-        )}
-      </div>
+          {/* {isPrompting && (
+            <div className="chat-message assistant typing">
+              Thinking...
+            </div>
+          )} */}
+        </div>
       </div>
 
       <div id='typeBar' className='grid-childs'>

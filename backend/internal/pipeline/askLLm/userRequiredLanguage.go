@@ -3,11 +3,12 @@ package askllm
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 )
 
-func GenerateInRequiredLanguage(englishResponse string, language string, h *models.Server)(string, error){
+func GenerateInRequiredLanguage(englishResponse string, language string, h *models.Server, w http.ResponseWriter, r *http.Request)(error){
 	prompt := `
 		You are an expert multilingual translator.
 		Your task is to translate the following text into the target language.
@@ -25,6 +26,18 @@ func GenerateInRequiredLanguage(englishResponse string, language string, h *mode
 
 		Target Language:
 		`+language+`
+		---------------------------------------
+		FORMATTING & STYLE GUIDELINES
+		---------------------------------------
+		1. Use Markdown formatting:
+		- # for main headings
+		- ## for subheadings
+		2. Use emojis where they add clarity or friendliness 🚀📌💡
+		3. Use:
+		i. ii. iii. for ordered points
+		- for unordered points
+		4. Separate major sections clearly, for example:
+
 
 		Text:
 		`+englishResponse+`
@@ -32,10 +45,10 @@ func GenerateInRequiredLanguage(englishResponse string, language string, h *mode
 
 
 	// generate the result in required result
-	aiGeneratedResult, err := GenerateResult(prompt, h)
+	err := GenerateResultAndSendToFrontend(prompt, h, w, r)
 	if err != nil{
-		return "", errors.New("Error in generating the prompt output.")
+		return errors.New("Error in generating the prompt output.")
 	}
 
-	return aiGeneratedResult, nil
+	return nil
 }

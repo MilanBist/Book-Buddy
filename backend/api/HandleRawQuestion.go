@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	askllm "github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/askLLm"
 	extractanswer "github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/extractAnswer"
@@ -18,6 +17,8 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 	var userQuery *models.Question
 	// now decode the data
 	json.NewDecoder(r.Body).Decode(&userQuery)
+
+	fmt.Println(userQuery)
 
 	// if the query is just nil
 	if userQuery.Query == ""{
@@ -53,6 +54,8 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 		// now set the userQuery be english query
 		userQuery.Query = englishQuery
 	}
+
+	fmt.Println("UserQuery: ",userQuery)
 	// now since the question asked is converted in the english
 
 	ans, err := extractanswer.GenerateEmebedding(userQuery.Query, h.server)
@@ -68,27 +71,27 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 		log.Fatal("Error in extracting the answer. ", err)
 	}
 
-	log.Println("Required Docx.")
 	// generate answers based on the given docx
 	llmResponse, err := askllm.AskLLM(requiredDocx, userQuery.Query, h.server)
 
 
+	fmt.Println(llmResponse)
+
 	// response the required docx with the language in which the user wants it
-	newResponse, err := askllm.GenerateInRequiredLanguage(llmResponse, userQuery.Language, h.server)
-	if err != nil{
-		log.Println("Error in generating in required language.")
+	if userQuery.Language != "English"{
+		err = askllm.GenerateInRequiredLanguage(llmResponse, userQuery.Language, h.server, w, r)
+		if err != nil{
+			log.Println("Error in generating in required language.")
+			return
+		}
 		return
 	}
-
-	log.Println(newResponse)
-
 
 	// return this response to the frontend
-	result := map[string]string{"Response": newResponse}
-	err = json.NewEncoder(w).Encode(result)
-	if err != nil{
-		fmt.Println("Error in encoding the response.")
-		return
-	}
-
+	// result := map[string]string{"Response": llmResponse}
+	// err = json.NewEncoder(w).Encode(result)
+	// if err != nil{
+	// 	fmt.Println("Error in encoding the response.")
+	// 	return
+	// }
 }

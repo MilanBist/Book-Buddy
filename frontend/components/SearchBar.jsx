@@ -38,7 +38,13 @@ export default function SearchBar({handlePrompt, setPromptInput, promptInput, se
 
     const setLang = (event)=>{
         const data = event.target.value;
+        if (data === "pl"){
+            data = "English";
+        }
         setLanguage(data);
+    }
+    const preferredLang = {
+        code:"pl", name:"Preferred Language", symbol:"PL"
     }
 
     const languages = [
@@ -58,7 +64,7 @@ export default function SearchBar({handlePrompt, setPromptInput, promptInput, se
             {/* Take the language and assign it key and values */}
         <div className='select-wrapper'>
             <select id='choices' name='choices' onChange={setLang}>
-                <option value="nothing">Preferred answer</option>
+                <option value={preferredLang.code}>Preferred answer</option>
                 {languages.map((language) => (
                     <option key={language.code} value={language.name}>
                         {language.symbol} ({language.name})
