@@ -23,6 +23,7 @@ func GenerateInRequiredLanguage(englishResponse string, language string, h *mode
 		- Preserve any technical terms, names, code snippets, URLs, or numbers unless they should naturally be translated.
 		- If the original contains markdown, bullet points, or formatting, preserve them exactly.
 		- The translation should read naturally to a native speaker while conveying the exact same feeling as the original.
+		- Never mention the note of your own just respond with the response only in given language.
 
 		Target Language:
 		`+language+`

@@ -37,7 +37,7 @@ export default function SearchBar({handlePrompt, setPromptInput, promptInput, se
     }
 
     const setLang = (event)=>{
-        const data = event.target.value;
+        let data = event.target.value;
         if (data === "pl"){
             data = "English";
         }

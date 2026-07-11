@@ -42,7 +42,7 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 	// the given provided language to english but semantic emotions in it
 	// must be preserved
 
-	if language != "English"{
+	if language != "English" || language == "English"{
 		// now convert the given userQuery to the English string
 		// convert the user query  to english
 		englishQuery, err := askllm.ConvertToEnglish(userQuery.Query, h.server)
@@ -78,7 +78,7 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 	fmt.Println(llmResponse)
 
 	// response the required docx with the language in which the user wants it
-	if userQuery.Language != "English"{
+	if userQuery.Language != "English" || userQuery.Language == "English"{
 		err = askllm.GenerateInRequiredLanguage(llmResponse, userQuery.Language, h.server, w, r)
 		if err != nil{
 			log.Println("Error in generating in required language.")

@@ -29,10 +29,7 @@ export default function Home() {
 
   // for setting the data to the main place
   const [data, setData] = useState("");
-  const [message, setMessage] = useState([
-      { role: "user", content: "" },
-      { role: "assistant", content: ""}
-  ]);
+  const [message, setMessage] = useState([]);
 
 
   // when the processing is being done by the backend
@@ -73,10 +70,10 @@ export default function Home() {
         role: "user",
         content: promptInput
     },
-    // {
-    //     role: "assistant",
-    //     content: ""
-    // }
+    {
+        role: "assistant",
+        content: ""
+    },
 ]);
     // main task here is to  get the data from the prompt input bar and send
     // to the backend localhost/api/extractAnswer or like that
