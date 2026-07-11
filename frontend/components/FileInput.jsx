@@ -1,3 +1,4 @@
+import "../styles/button.css"
 import { useState } from "react";
 
 export default function FileInput({onFileSelect, disabled, uploadChanger, setUpUploadBar}){
@@ -40,10 +41,13 @@ export default function FileInput({onFileSelect, disabled, uploadChanger, setUpU
                 disabled={disabled}
                 className="file_input_by_user"
             />
-            <button onClick={submitFile} disabled = {disabled}>
-                Process
-            </button>
-            <button onClick={disableUploadField}>Cancel</button>
+            <br />
+            <div className="fileuploadbuttons">
+                <button onClick={submitFile} disabled = {disabled} className="button">
+                    Process
+                </button>
+                <button onClick={disableUploadField} className="button">Cancel</button>
+            </div>
         </div>
     )
 }

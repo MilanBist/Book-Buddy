@@ -1,0 +1,161 @@
+
+
+#form-body {
+  background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+  font-family: "Poppins", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* ===========================
+   Form Card
+=========================== */
+
+.form-container {
+  width: 430px;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 40px;
+  box-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.08),
+    0 5px 15px rgba(0, 0, 0, 0.04);
+  animation: fadeIn 0.4s ease;
+}
+
+.form-container h2 {
+  text-align: center;
+  color: #1e293b;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.form-container p {
+  text-align: center;
+  color: #64748b;
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+/* ===========================
+   Labels
+=========================== */
+
+.form-container label {
+  display: block;
+  margin-bottom: 7px;
+  margin-top: 18px;
+  color: #334155;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ===========================
+   Inputs
+=========================== */
+
+.form-container input {
+  width: 100%;
+  height: 48px;
+  border: 1px solid #dbe3ec;
+  border-radius: 10px;
+  padding: 0 16px;
+  font-size: 15px;
+  transition: all 0.25s ease;
+  background: #fafafa;
+}
+
+.form-container input::placeholder {
+  color: #94a3b8;
+}
+
+.form-container input:hover {
+  border-color: #3b82f6;
+}
+
+.form-container input:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+/* ===========================
+   Button
+=========================== */
+
+.form-container button {
+  width: 100%;
+  height: 50px;
+  margin-top: 32px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.form-container button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(37, 99, 235, 0.25);
+}
+
+.form-container button:active {
+  transform: scale(0.98);
+}
+
+.link-login-word{
+    text-align: center;
+    margin-top: 10px;
+}
+
+.link-login{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 10px;
+    text-align: center;
+}
+.link-login h4{
+    color: black;
+}
+.link-login p:hover{
+    color: blue;
+}
+/* ===========================
+   Responsive
+=========================== */
+
+@media (max-width: 500px) {
+  .signup-container {
+    width: 92%;
+    padding: 30px 24px;
+  }
+
+  .signup-container h2 {
+    font-size: 1.7rem;
+  }
+}
+
+
+
+/* ===========================
+   Animation
+=========================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

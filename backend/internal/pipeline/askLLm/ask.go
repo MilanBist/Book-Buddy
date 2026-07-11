@@ -13,7 +13,7 @@ func AskLLM(docx []string, query string, h *models.Server) (string, error){
 	// whole of the augementation to the LLM and generate the result
 	// get the data from the LLM and respond to the frontend
 
-	promptTemplate, err := GeneratePromptAugmentation(docx, query)
+	promptTemplate, err := QueryAnswerPrompt(docx, query)
 	if err != nil{
 		log.Fatal(err)
 	}

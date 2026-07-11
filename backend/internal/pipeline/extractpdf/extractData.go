@@ -5,7 +5,9 @@ import (
 	"log"
 	"mime/multipart"
 	"strings"
+
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
+	askllm "github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/askLLm"
 	"github.com/gen2brain/go-fitz"
 	"github.com/tmc/langchaingo/textsplitter"
 )
@@ -52,21 +54,22 @@ func ExtractData(file *multipart.File, filePath string, s *models.Server) error 
 	result = strings.Trim(result, "\n\n")
 	result = strings.Trim(result, "\t")
 
+
+	// convert whole of the result in string remove unnecessay numbers and other things
+	response, err := askllm.ConvertToEnglish(result, s)
+	if err != nil{
+		log.Println("Error in generating the response of the docx.")
+		return err
+	}
+
 	// convert them to splitted text and create embeddings of them
-	splittedDocx, err  := splitDocument(result)
+	splittedDocx, err  := splitDocument(response)
 	if err != nil{
 		return errors.New("Error in splitting docx.")
 	}
 
-
 	// create embeddings and store it in the vector store
-	// fmt.Println(len(splittedDocx))
-	// fmt.Println(splittedDocx)
-
-
-	// store in the vector store
 	err = VectorStore(splittedDocx, s, filePath)
-
 
 	return nil
 }

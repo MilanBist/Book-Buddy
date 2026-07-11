@@ -1,8 +1,16 @@
 # get the environment file to ignore
 .env
 
-backend/qdrant_storage/
-*.db
-*.dat
-*.wal
-*.json
+# backend/qdrant_storage/
+# *.db
+# *.dat
+# *.wal
+# *.json
+
+
+# // add the uploadedBooks folder as well
+uploadedFiles/
+
+
+# Add the output.txt file as well
+output/output.txt
