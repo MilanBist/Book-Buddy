@@ -12,6 +12,7 @@ type Config struct{
 	OllamaEndPoint			string
 	OllamaModel				string
 	OllamaEmbeddingModel	string
+	OllamaTranslationModel	string
 	QdrantPort				string
 }
 
@@ -30,6 +31,7 @@ func LoadConfig() *Config{
 		OllamaEndPoint: os.Getenv("OLLAMA_ENDPOINT"),
 		OllamaModel: os.Getenv("OLLAMA_MODEL"),
 		OllamaEmbeddingModel: os.Getenv("OLLAMA_EMBEDDING_MODEL"),
+		OllamaTranslationModel: os.Getenv("OLLAMA_TRANSLATION_MODEL"),
 		QdrantPort: os.Getenv("QDRANT_PORT"),
 	}
 
@@ -39,6 +41,9 @@ func LoadConfig() *Config{
 	}
 	if cfg.OllamaModel == ""{
 		cfg.OllamaModel = "llama3.2"
+	}
+	if cfg.OllamaTranslationModel== ""{
+		cfg.OllamaTranslationModel = "qwen2.5"
 	}
 
 	return cfg

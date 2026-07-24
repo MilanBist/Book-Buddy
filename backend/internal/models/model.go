@@ -33,3 +33,21 @@ type Register struct{
 	Email string		`json:"userEmail"`
 	Password string		`json:"userPassword"`
 }
+
+type error struct{
+	Code	int	`json:"code"`
+	Message	string	`json:"message"`
+}
+type ErrorResponse struct{
+	Success	bool	`json:"success"`
+	ErrMsg	error	`json:"error"`
+}
+
+type success struct{
+	Code	int	`json:"code"`
+	Message	string	`json:"message"`
+}
+type SuccessResponse struct{
+	Success		bool	`json:"success"`
+	SuccessMsg	success	`json:"scx"`
+}

@@ -7,7 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/extractpdf"
+	"github.com/MilanBist/AI-Powered-Book-Answerer/utils"
 )
 
 func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
@@ -58,18 +61,24 @@ func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	// iv. Create embeddings and store in vector db
 
 	err = extractpdf.ExtractData(&file, fullPath, h.server)
+	fmt.Println("Error: ", err)
 	if err != nil{
-		fmt.Println(err)
-		http.Error(w, "Can't extract data from pdf", http.StatusInternalServerError)
+		fmt.Println("Error in extracting the pdf.")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusAccepted)
+		// now add the error message
+		var errResponse models.ErrorResponse
+		utils.PrepareErrorMessage(err.Error())
+		json.NewEncoder(w).Encode(&errResponse)
 		return
 	}
-
 	// if no nil just return extraction and saving compelted
-	m := make(map[string]string)
-
-	m["message"] = "Vector stored successfully."
-	
-
-	fmt.Println(m)
-	json.NewEncoder(w).Encode(m)
+	var response models.SuccessResponse
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted)
+	// set the response
+	response.Success = true
+	response.SuccessMsg.Code = http.StatusAccepted
+	response.SuccessMsg.Message = "Book embedded successfully."
+	json.NewEncoder(w).Encode(&response)
 }

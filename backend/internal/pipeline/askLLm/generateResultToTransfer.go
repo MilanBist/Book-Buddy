@@ -13,14 +13,15 @@ import (
 
 func GenerateResultAndSendToFrontend(prompt string, h *models.Server, w http.ResponseWriter, r *http.Request)(error){
 	// get the ollma model for the answer generation
-	model := h.Config.OllamaModel
+	model := h.Config.OllamaTranslationModel
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive") // optional, often harmless
 
 	flusher := w.(http.Flusher)
 
-	fmt.Print("Reaching here to send to frontend.");
+	fmt.Println("Reaching here to send to frontend.", prompt)
+
 
 	llm, err := ollama.New(
 		ollama.WithModel(model),

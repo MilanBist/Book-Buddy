@@ -70,10 +70,10 @@ func(h *Handler) setupRoutes(){
 			// get the question -> create embedding -> extract relevant data from the vector db
 			r.Post("/extractAnswer", h.HandleRawQuestion)
 
-
+			// in order to login
 			r.Post("/login", h.HandleRawQuestion)
 
-
+			// in order to register
 			r.Post("/register", h.HandleRawQuestion)
 
 		})

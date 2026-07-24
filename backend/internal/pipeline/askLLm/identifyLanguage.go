@@ -3,16 +3,17 @@ package askllm
 import (
 	"context"
 	"fmt"
+	// "strings"
 
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/ollama"
 )
 
-func GenerateResult(prompt string, h *models.Server) (string, error){
+func GenerateLanguageResults(prompt string, h *models.Server)(string, error){
 	// get the ollma model for the answer generation
-	model := h.Config.OllamaModel
-
+	model := h.Config.OllamaTranslationModel
+	fmt.Println("Reaching here to send to frontend.", prompt)
 
 	llm, err := ollama.New(
 		ollama.WithModel(model),
@@ -22,7 +23,8 @@ func GenerateResult(prompt string, h *models.Server) (string, error){
 		return "", err
 	}
 
-	answer, err := llms.GenerateFromSinglePrompt(
+
+	result, err := llms.GenerateFromSinglePrompt(
 		context.Background(),
 		llm,
 		prompt,
@@ -34,6 +36,6 @@ func GenerateResult(prompt string, h *models.Server) (string, error){
 		return "", err
 	}
 
-	return answer, err
+	return result, nil
 
 }

@@ -2,8 +2,8 @@ package extractanswer
 
 import (
 	"context"
+	"errors"
 	"fmt"
-
 	"github.com/qdrant/go-client/qdrant"
 )
 
@@ -16,12 +16,12 @@ func FindBestEmbeddings(client *qdrant.Client, point []float32)([]string, error)
 	searchResult, err := client.Query(context.Background(), &qdrant.QueryPoints{
 		CollectionName: "AI_Book_summarizer",
 		Query: qdrant.NewQuery(point...),
-		Limit: uint64Ptr(10),
+		Limit: uint64Ptr(5),
 		WithPayload: qdrant.NewWithPayload(true),
 	})
 	if err != nil{
-		fmt.Println("Error in getting the result. ")
-		return nil, err
+		fmt.Println(err)
+		return nil, errors.New("No table")
 	}
 
 	var bestResults []string

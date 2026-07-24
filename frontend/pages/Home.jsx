@@ -47,11 +47,26 @@ export default function Home() {
     // after appending the file now my task is to send the request using the axios to the browser
     try{
       const response = await axios.post("http://localhost:8080/api/handlePdf", formData);
-      console.log(response.data)
-    // setResult(response.data)
+      const responseData = response.data;
+
+      // Print the error here
+      const success = responseData.success;
+      console.log(success);
+      if (success){
+        console.log("Status Code: ", responseData.scx.code);
+        console.log("Message: ", responseData.scx.message);
+        alert("Your book is uploaded successfully \n Now you can ask??j");
+        return;
+      }
+      console.log("Status Code: ", responseData.error.code);
+      console.log("Error: ", responseData.error.message);
+      // This is the error being obtained.
+      alert("Internal Server Error please try again later.");
+      return;
     
     } catch(err){
         console.log(err)
+        alert("Error with the url check it please.")
     // setResult(null)
     }
 
@@ -99,6 +114,23 @@ export default function Home() {
         body: JSON.stringify(userPrompt),
       });
 
+      if (!response.ok){
+        // I will get the data in the form of the string 
+        const err = await response.json();
+        console.log(err);
+        // Print the error here
+        console.log("Status Code: ", err.error.code);
+        console.log("Error: ", err.error.message);
+
+        // This is the error being obtained.
+        if (err.error.message == "No table"){
+          alert("Please upload the book first.")
+          return;
+        }
+        alert(err.error.message)
+        return
+
+      }
       // as the response now in the form of the stream so work according to it
       // set a reader and decoder
       const reader = response.body.getReader();
