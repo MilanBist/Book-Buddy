@@ -90,7 +90,6 @@ export default function SignUpForm(){
             alert("Fill all of credentials.");
             return;
         }
-
     
         let checkFirstName = checkName(firstName);
         let checkLastName = checkName(lastName);
@@ -136,31 +135,23 @@ export default function SignUpForm(){
             userPassword: password,
         };
 
+        console.log(formdata)
+
         // send this to the frontend using the axios
         apiClient.post("/register", formdata).then((resp) =>{
+            // if the response status is 202
             setResponse(resp);
+            console.log("Register response is: ", resp.data);
+            localStorage.setItem("tokenId", resp["data"]["data"]["token"]);
+            // navigate to the homepage now
+            navigate("/");
+            
         }).catch((err) =>{
+            console.log(err);
             setError(err);
         }).finally(()=>{
             console.log("Successfully register response.");
         })
-
-
-
-        // if (error !== null){
-        //     console.log("Error here");
-        //     return;
-        // }
-
-        // // check for each of the response
-        // if (response["message"] === false){
-        //     alert(response["messageContent"]);
-        //     return;
-        // }
-
-        navigate('/');
-
-
     }
 
     return(

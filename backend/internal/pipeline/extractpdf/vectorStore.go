@@ -3,9 +3,9 @@ package extractpdf
 import (
 	"context"
 	"fmt"
-	"strings"
 	"os"
 	"strconv"
+	"strings"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/qdrant/go-client/qdrant"
 	"github.com/tmc/langchaingo/llms/ollama"
@@ -161,6 +161,12 @@ func VectorStore(splittedDocx []string, s *models.Server, fileName string) error
 	bookTitle = book[0]
 	fmt.Println("Book title saved: ", bookTitle)
 
+
+	// after getting the book title 
+	// also store it into the postgres db
+
+
+
 	// first create the embedding of each of the given docx
 	response, err := CreateEmbeddings(splittedDocx, s)
 	if err != nil{
@@ -173,7 +179,7 @@ func VectorStore(splittedDocx []string, s *models.Server, fileName string) error
 	err = createCollectionWithName(splittedDocx, response, s, bookTitle)
 	if err != nil{
 		return err
-	}
+	}	
 
 
 	fmt.Println("File name with the giiven is stored. ", bookTitle)

@@ -1,9 +1,9 @@
 package models
 
 import (
-	"database/sql"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/config"
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/qdrant/go-client/qdrant"
 )
 
@@ -13,7 +13,7 @@ type Server struct{
 	Router		*chi.Mux
 	Store		*qdrant.Client
 	Config		*config.Config
-	SqliteDB 	*sql.DB
+	PostgresDB 	*pgxpool.Pool
 }
 
 type Question struct{
@@ -44,10 +44,21 @@ type ErrorResponse struct{
 }
 
 type success struct{
-	Code	int	`json:"code"`
+	Code	int		`json:"code"`
 	Message	string	`json:"message"`
 }
 type SuccessResponse struct{
 	Success		bool	`json:"success"`
 	SuccessMsg	success	`json:"scx"`
+}
+
+// for each and every api response
+type APIResponse struct {
+	Success bool        `json:"success"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
+	Errors  interface{} `json:"errors,omitempty"`
+}
+type AuthData struct {
+	Token string `json:"token"`
 }

@@ -90,35 +90,18 @@ export default function LoginForm(){
     // if both are correct then call the handler for the login
     apiClient.post("/login",bodyMap).then((resp)=>{
             setResponse(resp);
+            console.log("Login response is: ", resp.data);
+            // update the token value from the local storage
+            localStorage.setItem("tokenId", resp.data["data"]["token"]);
+
+            navigate("/");
         }).catch((err) => {
+            // check for the headers here
             setError(err);
+            console.log("Login error: ", err);
         }).finally(()=>{
             console.log("Login credentials checked.");
         })
-
-    // check for the error
-    if (error){
-        console.log("Error in checking the credentials.");
-        return;
-    }
-
-    // // check from the response
-    // // check if mail exists then 
-    // if (response["mailMessage"] === false){
-    //     // now the user doesn't exist
-    //     alert("User don't exist. Please signup.");
-    //     return;
-    // }
-
-    // if (response["mailMessage"] && response["passwordMessage"] === false){
-    //     alert("Password credentials wronng.");
-    //     return;
-    // }
-
-    // if all are correct give the message of successfully logged in
-    // alert('Successfully logged up.');
-
-    // navigate('/');
     
     }
        return(

@@ -3,11 +3,13 @@ package api
 import (
 	"net/http"
 	"time"
+
 	"github.com/MilanBist/AI-Powered-Book-Answerer/config"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/qdrant/go-client/qdrant"
 )
 
@@ -18,7 +20,7 @@ type Handler struct{
 	server *models.Server
 }
 
-func NewServer(db *qdrant.Client, cfg *config.Config) *models.Server{
+func NewServer(vectorStore *qdrant.Client, cfg *config.Config, postgres *pgxpool.Pool) *models.Server{
 	r := chi.NewRouter()
 
 
@@ -39,8 +41,9 @@ func NewServer(db *qdrant.Client, cfg *config.Config) *models.Server{
 
   	server := &models.Server{
 		Router: r,
-		Store: db,
+		Store: vectorStore,
 		Config: cfg,
+		PostgresDB: postgres,
 	}
 
 	handler := &Handler{
@@ -64,19 +67,17 @@ func(h *Handler) setupRoutes(){
 			r.Get("/status", func(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte("Success in API call!"))
 			})
+
+			// in order to login
+			r.Post("/login", h.HandleLogin)
+
+			// in order to register
+			r.Post("/register", h.HandleRegister)
+
 			// extract pdf + create embeddings + store in vector db
 			r.Post("/handlePdf", h.HandleRawPdfFile)
 
 			// get the question -> create embedding -> extract relevant data from the vector db
 			r.Post("/extractAnswer", h.HandleRawQuestion)
-
-			// in order to login
-			r.Post("/login", h.HandleRawQuestion)
-
-			// in order to register
-			r.Post("/register", h.HandleRawQuestion)
-
 		})
-  	
-	//
 }

@@ -2,8 +2,8 @@ package askllm
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	// "strings"
 
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/tmc/langchaingo/llms"
@@ -33,7 +33,7 @@ func GenerateLanguageResults(prompt string, h *models.Server)(string, error){
 
 	if err != nil{
 		fmt.Println("Error in completing the response from the llm.")
-		return "", err
+		return "", errors.New("Error in generating answer.")
 	}
 
 	return result, nil

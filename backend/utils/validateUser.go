@@ -54,15 +54,17 @@ func validatePassword(password string) bool {
 
 // validate the address
 func validateAddress(address string) bool {
-	var validAddress = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9,._-]+( [a-zA-Z0-9,.-_]+)*$`)
+	var validAddress = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9,._ -]{3,100}$`)
 	validated := false
-	if validAddress.MatchString(address) && (len(address) < 100 && len(address) > 10) {
+	if validAddress.MatchString(address) {
 		validated = true
 	}
+
+	fmt.Println("For validating the address ", validAddress)
 	return validated
 }
 
-func ValidateUserRegister(credentials *models.Register) (bool, string){
+func ValidateUserRegister(credentials models.Register) (bool, string){
 	// all of the above data must be checked properly
 
 	checkFirstName := validateName(credentials.FirstName)
@@ -86,7 +88,6 @@ func ValidateUserRegister(credentials *models.Register) (bool, string){
 
 	// if there is error in the email
 	if !checkEmail{
-		//
 		return false, "Error in the mail."
 	}
 

@@ -6,8 +6,12 @@ import SearchBar from '../components/SearchBar';
 import NavBar from '../components/NavBar';
 import ChatHistory from '../components/ChatHistory';
 import ReactMarkdown from "react-markdown";
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export default function Home() {
+  // navigate constant
+  const navigate = new useNavigate();
 
   // for the language specifically
   const [language, setLanguage] = useState("English");
@@ -41,33 +45,53 @@ export default function Home() {
     setIsUploading(true);
     // setResult(null);
 
+    // get the token string
+    const token = localStorage.getItem("token");
+    if (!token){
+      // redirect to the login page
+      toast.error("Your are not authenticated. Please login/register", {
+      autoClose: 3000,
+       onClose: () => {
+        navigate("/login");
+      },
+      });
+    }
     // create the instance of the form data
     const formData = new FormData();
     formData.append("document", file)
     // after appending the file now my task is to send the request using the axios to the browser
     try{
-      const response = await axios.post("http://localhost:8080/api/handlePdf", formData);
-      const responseData = response.data;
+      setIsUploading(true);
+      const response = await axios.post("http://localhost:8080/api/handlePdf", formData, {
+        headers:{
+          Authorization: `Authentication ${token}`,
+        }
+      }
+      );
 
+      // set the uploading to be tru
+
+      const responseData = response.data;
       // Print the error here
       const success = responseData.success;
-      console.log(success);
+      const successMsg = responseData.message;
+      console.log("Success message: ", successMsg);
+
+
       if (success){
-        console.log("Status Code: ", responseData.scx.code);
-        console.log("Message: ", responseData.scx.message);
         alert("Your book is uploaded successfully \n Now you can ask??j");
         return;
       }
-      console.log("Status Code: ", responseData.error.code);
-      console.log("Error: ", responseData.error.message);
-      // This is the error being obtained.
-      alert("Internal Server Error please try again later.");
-      return;
     
     } catch(err){
         console.log(err)
-        alert("Error with the url check it please.")
-    // setResult(null)
+        const responseData = response.data;
+        const success = responseData.success;
+        const msg = responseData.message;
+
+        alert(msg);
+    } finally{
+      setIsUploading(false);
     }
 
   // since successfully uploaded
@@ -97,19 +121,27 @@ export default function Home() {
       query: promptInput,
       language: language,
     };
+    // get the token
 
-    console.log(userPrompt);
 
     try{
-      // set the prompt to be nil
-      // set is prompting to be true
-
       setPromptInput("");
       setIsPrompting(true);
+      const token = localStorage.getItem("token");
+      if (!token){
+        // redirect to the login page
+        toast.error("Your are not authenticated. Please login/register", {
+        autoClose: 3000,
+        onClose: () => {
+          navigate("/login");
+        },
+        });
+      }
       const response =  await fetch("http://localhost:8080/api/extractAnswer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(userPrompt),
       });
@@ -129,7 +161,6 @@ export default function Home() {
         }
         alert(err.error.message)
         return
-
       }
       // as the response now in the form of the stream so work according to it
       // set a reader and decoder

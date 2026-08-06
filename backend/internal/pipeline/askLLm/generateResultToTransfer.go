@@ -1,17 +1,18 @@
 package askllm
 
 import (
+	"bytes"
 	"context"
-	"fmt"
+	"errors"
 	"net/http"
-	// "strings"
-
+	dbqueries "github.com/MilanBist/AI-Powered-Book-Answerer/db/dbQueries"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/ollama"
 )
 
-func GenerateResultAndSendToFrontend(prompt string, h *models.Server, w http.ResponseWriter, r *http.Request)(error){
+func GenerateResultAndSendToFrontend(query, prompt string, h *models.Server, w http.ResponseWriter, r *http.Request, userId, bookId int, db *pgxpool.Pool)(error){
 	// get the ollma model for the answer generation
 	model := h.Config.OllamaTranslationModel
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -20,17 +21,15 @@ func GenerateResultAndSendToFrontend(prompt string, h *models.Server, w http.Res
 
 	flusher := w.(http.Flusher)
 
-	fmt.Println("Reaching here to send to frontend.", prompt)
-
-
 	llm, err := ollama.New(
 		ollama.WithModel(model),
 	)
 	if err != nil{
-		fmt.Println("Error in loading ollama model.")
-		return err
+		return errors.New("Error in connecting to the model.")
 	}
 
+	// make a final chunk
+	var finalChunk bytes.Buffer
 
 	_, err = llms.GenerateFromSinglePrompt(
 		context.Background(),
@@ -41,19 +40,21 @@ func GenerateResultAndSendToFrontend(prompt string, h *models.Server, w http.Res
 			// I will get the chunk of the data now just send this one to the frontend
 			// return to the server
 			_, err := w.Write(chunk)
+
 			if err != nil{
-				// return the error in writing the chunk
-				return err
+				return errors.New("Error in writing chunk to frontend.")
 			}
-			fmt.Print(string(chunk))
+			finalChunk.Write(chunk)
 			flusher.Flush()
 			return nil
 		}))
 
 	if err != nil{
-		fmt.Println("Error in completing the response from the llm.")
-		return err
+		return errors.New("Error in completing the response.")
 	}
+
+	// add the conversation to the database
+	dbqueries.AddConversation(query, finalChunk.String(), userId, bookId, db)
 
 	return nil
 
