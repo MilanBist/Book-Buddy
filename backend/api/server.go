@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/MilanBist/AI-Powered-Book-Answerer/config"
+	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/middlewares"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -68,16 +69,24 @@ func(h *Handler) setupRoutes(){
 				w.Write([]byte("Success in API call!"))
 			})
 
-			// in order to login
+			// for the login and registration
 			r.Post("/login", h.HandleLogin)
-
-			// in order to register
 			r.Post("/register", h.HandleRegister)
 
-			// extract pdf + create embeddings + store in vector db
-			r.Post("/handlePdf", h.HandleRawPdfFile)
 
-			// get the question -> create embedding -> extract relevant data from the vector db
-			r.Post("/extractAnswer", h.HandleRawQuestion)
+			// create the protected handlers
+			r.Group(func(r chi.Router){
+				// add the middlewares here
+				r.Use(middlewares.LoggingMiddleware)
+				r.Use(middlewares.AuthMiddleware)
+
+				
+				// extract pdf + create embeddings + store in vector db
+				r.Post("/handlePdf", h.HandleRawPdfFile)
+				// get the question -> create embedding -> extract relevant data from the vector db
+				r.Post("/extractAnswer", h.HandleRawQuestion)
+			})
+
+			
 		})
 }

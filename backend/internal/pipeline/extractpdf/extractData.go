@@ -6,7 +6,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strings"
-
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	askllm "github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/askLLm"
 	"github.com/gen2brain/go-fitz"
@@ -35,7 +34,6 @@ func ExtractData(file *multipart.File, filePath string, s *models.Server) (int, 
 		return http.StatusInternalServerError, err
 	}
 	defer document.Close()
-
 	var data strings.Builder
 
 	// extract the text from the given document

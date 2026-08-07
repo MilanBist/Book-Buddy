@@ -87,7 +87,13 @@ func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 
 	// for the full path
 	filePaths := strings.Split(fullPath, "/")
-	fileName = filePaths[len(fileName)-2]
+	fileName = filePaths[len(filePaths)-1]
+
+	// get the file name
+	newFilePath := strings.Split(fileName, ".")
+	fileName = newFilePath[0]
+
+	fmt.Println("[HANDLE RAW PDF FILE] File name is: ", fileName)
 
 	userId := r.Context().Value("userId").(int)
 	// add to the database
