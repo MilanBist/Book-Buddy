@@ -97,10 +97,9 @@ func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 
 	userId := r.Context().Value("userId").(int)
 	// add to the database
-	status, err = dbqueries.AddBookIdentity(fileName, userId, h.server.PostgresDB)
-
+	status, bookId, err := dbqueries.AddBookIdentity(fileName, userId, h.server.PostgresDB)
 	if err != nil{
-		fmt.Println("[PDF HANDLER]: Error in extracting the pdf.")
+		fmt.Println("[PDF HANDLER]: Error in adding the book to db.")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
 		// now add the error message
@@ -118,6 +117,10 @@ func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	response := models.APIResponse{
 		Success: true,
 		Message: "Book added to database successfully.",
+		Data: models.BookData{
+			BookId: bookId,
+			BookName: fileName,
+		},
 	}
 	json.NewEncoder(w).Encode(&response)
 }

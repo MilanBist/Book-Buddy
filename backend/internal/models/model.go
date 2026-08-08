@@ -62,3 +62,12 @@ type APIResponse struct {
 type AuthData struct {
 	Token string `json:"token"`
 }
+
+type BookData struct{
+	BookId	int 	`json:"bookId"`
+	BookName string	`json:"bookName"`
+}
+
+type Messages struct{
+
+}

@@ -80,11 +80,15 @@ func(h *Handler) setupRoutes(){
 				r.Use(middlewares.LoggingMiddleware)
 				r.Use(middlewares.AuthMiddleware)
 
-				
+
 				// extract pdf + create embeddings + store in vector db
 				r.Post("/handlePdf", h.HandleRawPdfFile)
 				// get the question -> create embedding -> extract relevant data from the vector db
 				r.Post("/extractAnswer", h.HandleRawQuestion)
+
+				// in order to get the books and the conversation insdie of that book
+				r.Get("/getBooks", h.HandleGettingBooks)
+				r.Get("/getConversation", h.HandleConversation)
 			})
 
 			

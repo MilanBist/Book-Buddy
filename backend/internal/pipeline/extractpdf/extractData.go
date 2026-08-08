@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
-	askllm "github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/askLLm"
 	"github.com/gen2brain/go-fitz"
 	"github.com/tmc/langchaingo/textsplitter"
 )
@@ -55,14 +54,14 @@ func ExtractData(file *multipart.File, filePath string, s *models.Server) (int, 
 
 
 	// convert whole of the result in string remove unnecessay numbers and other things
-	response, err := askllm.ConvertToEnglish(result, s)
-	if err != nil{
-		log.Println("[EXTRACT DATA]: Error in generating the response of the docx.")
-		return http.StatusInternalServerError, err
-	}
+	// response, err := askllm.ConvertToEnglish(result, s)
+	// if err != nil{
+	// 	log.Println("[EXTRACT DATA]: Error in generating the response of the docx.")
+	// 	return http.StatusInternalServerError, err
+	// }
 
 	// convert them to splitted text and create embeddings of them
-	splittedDocx, err  := splitDocument(response)
+	splittedDocx, err  := splitDocument(data.String())
 	if err != nil{
 		log.Println("[EXTRACT DATA]: Error in splitting the docx.")
 		return http.StatusInternalServerError, errors.New("Error in splitting docx.")
