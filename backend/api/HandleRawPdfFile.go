@@ -7,6 +7,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
+
+	dbqueries "github.com/MilanBist/AI-Powered-Book-Answerer/db/dbQueries"
+	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/extractpdf"
 )
 
@@ -22,11 +27,16 @@ func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	// get the file name
 	fileName := header.Filename
 
-	log.Println(fileName)
+	fmt.Println("[PDF HANDLER]: BookName: ",fileName)
+
+	// check if the extension is pdf or not
+	if strings.ToLower(filepath.Ext(fileName)) != ".pdf" {
+		http.Error(w, "Only PDF files are allowed", http.StatusBadRequest)
+		return
+	}
 
 	// save the file to the location of certain place by saying it documents
 	folderPath := "./uploadedFiles"
-
 	entries, err := os.ReadDir(folderPath)
 	log.Println(entries)
 	info, err := os.Stat(folderPath)
@@ -34,21 +44,23 @@ func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 		if info == nil{
 		err = os.Mkdir("./uploadedFiles", 0755)
 		if err != nil{
-			fmt.Println("Error: ", err)
+			fmt.Println("[PDF HANDLER] Error in creating folder: ", err)
+			}
 		}
-	}
 	}
 	// cerate the file
 	fullPath := folderPath + "/" + fileName
 	copiedFile, err := os.Create(fullPath)
 	if err != nil{
-		log.Fatal("Error in creating the file. ", err)
+		http.Error(w, "Error in creating the filepath", http.StatusInternalServerError)
+		return
 	}
 
 	// make a copy of the file inside the given folder made above
 	_, err = io.Copy(copiedFile, file)
 	if err != nil{
-		log.Fatal("Error in copying the file.")
+		http.Error(w, "Error in copying the file", http.StatusInternalServerError)
+		return
 	}
 
 	// send this file to the pipeline ->
@@ -57,19 +69,58 @@ func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	// iii. Split this string
 	// iv. Create embeddings and store in vector db
 
-	err = extractpdf.ExtractData(&file, fullPath, h.server)
+	status, err := extractpdf.ExtractData(&file, fullPath, h.server)
+	fmt.Println("Error: ", err)
 	if err != nil{
-		fmt.Println(err)
-		http.Error(w, "Can't extract data from pdf", http.StatusInternalServerError)
+		fmt.Println("[PDF HANDLER]: Error in extracting the pdf.")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		// now add the error message
+		response := models.APIResponse{
+			Success: false,
+			Message: err.Error(),
+		}
+		json.NewEncoder(w).Encode(&response)
 		return
 	}
 
+
+	// for the full path
+	filePaths := strings.Split(fullPath, "/")
+	fileName = filePaths[len(filePaths)-1]
+
+	// get the file name
+	newFilePath := strings.Split(fileName, ".")
+	fileName = newFilePath[0]
+
+	fmt.Println("[HANDLE RAW PDF FILE] File name is: ", fileName)
+
+	userId := r.Context().Value("userId").(int)
+	// add to the database
+	status, bookId, err := dbqueries.AddBookIdentity(fileName, userId, h.server.PostgresDB)
+	if err != nil{
+		fmt.Println("[PDF HANDLER]: Error in adding the book to db.")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
+		// now add the error message
+		response := models.APIResponse{
+			Success: false,
+			Message: err.Error(),
+		}
+		json.NewEncoder(w).Encode(&response)
+		return
+	}
 	// if no nil just return extraction and saving compelted
-	m := make(map[string]string)
-
-	m["message"] = "Vector stored successfully."
-	
-
-	fmt.Println(m)
-	json.NewEncoder(w).Encode(m)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	// set the response
+	response := models.APIResponse{
+		Success: true,
+		Message: "Book added to database successfully.",
+		Data: models.BookData{
+			BookId: bookId,
+			BookName: fileName,
+		},
+	}
+	json.NewEncoder(w).Encode(&response)
 }

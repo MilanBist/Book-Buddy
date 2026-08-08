@@ -4,10 +4,9 @@ import (
 	"errors"
 	"log"
 	"mime/multipart"
+	"net/http"
 	"strings"
-
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
-	askllm "github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/askLLm"
 	"github.com/gen2brain/go-fitz"
 	"github.com/tmc/langchaingo/textsplitter"
 )
@@ -25,16 +24,15 @@ func splitDocument(document string)([]string, error){
 	return chunks, nil
 }
 
-func ExtractData(file *multipart.File, filePath string, s *models.Server) error {
+func ExtractData(file *multipart.File, filePath string, s *models.Server) (int, error) {
 
 	// initialize the fitz document
 	document, err := fitz.New(filePath)
 	if err != nil{
-		log.Println("Error in creating fitz document.")
-		return err
+		log.Println("[EXTRACT DATA]: Error in creating fitz document.")
+		return http.StatusInternalServerError, err
 	}
 	defer document.Close()
-
 	var data strings.Builder
 
 	// extract the text from the given document
@@ -44,7 +42,7 @@ func ExtractData(file *multipart.File, filePath string, s *models.Server) error 
 		text, err = document.Text(n)
 		if err != nil{
 			log.Println("Error in getting text.")
-			return err
+			return http.StatusInternalServerError, err
 		}
 		data.WriteString(string(text))
 	}
@@ -56,20 +54,24 @@ func ExtractData(file *multipart.File, filePath string, s *models.Server) error 
 
 
 	// convert whole of the result in string remove unnecessay numbers and other things
-	response, err := askllm.ConvertToEnglish(result, s)
-	if err != nil{
-		log.Println("Error in generating the response of the docx.")
-		return err
-	}
+	// response, err := askllm.ConvertToEnglish(result, s)
+	// if err != nil{
+	// 	log.Println("[EXTRACT DATA]: Error in generating the response of the docx.")
+	// 	return http.StatusInternalServerError, err
+	// }
 
 	// convert them to splitted text and create embeddings of them
-	splittedDocx, err  := splitDocument(response)
+	splittedDocx, err  := splitDocument(data.String())
 	if err != nil{
-		return errors.New("Error in splitting docx.")
+		log.Println("[EXTRACT DATA]: Error in splitting the docx.")
+		return http.StatusInternalServerError, errors.New("Error in splitting docx.")
 	}
 
 	// create embeddings and store it in the vector store
 	err = VectorStore(splittedDocx, s, filePath)
+	if err != nil{
+		return http.StatusInternalServerError, err
+	}
 
-	return nil
+	return http.StatusAccepted, nil
 }

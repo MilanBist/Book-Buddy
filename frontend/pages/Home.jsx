@@ -1,13 +1,17 @@
 import '../src/App.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import axios from 'axios';
 import FileInput from '../components/FileInput';
 import SearchBar from '../components/SearchBar';
 import NavBar from '../components/NavBar';
 import ChatHistory from '../components/ChatHistory';
 import ReactMarkdown from "react-markdown";
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export default function Home() {
+  // navigate constant
+  const navigate = new useNavigate();
 
   // for the language specifically
   const [language, setLanguage] = useState("English");
@@ -29,33 +33,84 @@ export default function Home() {
 
   // for setting the data to the main place
   const [data, setData] = useState("");
-  const [message, setMessage] = useState([]);
+  const [message, setMessage] = useState({});
 
 
   // when the processing is being done by the backend
   const [isPrompting, setIsPrompting] = useState(false);
 
+  // set for the books that I am getting
+  const [books, setBooks] = useState([]);
+
+  // for the book id and bookName in order to receive the conversaton
+  const [forConversation, setForConversation] = useState(new Map());
+
 
   // handle the fileupload 
   const handlefileUpload = async (file)=>{
     setIsUploading(true);
-    // setResult(null);
 
+    // get the token string
+    const token = localStorage.getItem("tokenId");
+    if (!token){
+      // redirect to the login page
+      toast.error("Your are not authenticated. Please login/register", {
+      autoClose: 3000,
+       onClose: () => {
+        navigate("/login");
+      },
+      });
+    }
     // create the instance of the form data
     const formData = new FormData();
     formData.append("document", file)
     // after appending the file now my task is to send the request using the axios to the browser
     try{
-      const response = await axios.post("http://localhost:8080/api/handlePdf", formData);
-      console.log(response.data)
-    // setResult(response.data)
+      setIsUploading(true);
+      const response = await axios.post("http://localhost:8080/api/handlePdf", formData, {
+        headers:{
+          Authorization: `Bearer ${token}`,
+        }
+      }
+      );
+
+      // set the uploading to be tru
+
+      const responseData = response.data;
+      // Print the error here
+      const success = responseData.success;
+      const successMsg = responseData.message;
+      console.log("Success message: ", successMsg);
+
+
+      if (success){
+        alert("Your book is uploaded successfully \n Now you can ask??j");
+        return;
+      }
     
     } catch(err){
-        console.log(err)
-    // setResult(null)
-    }
+      console.log(err.response?.status)
+      const status = err.response?.status;
 
-  // since successfully uploaded
+      if (status === 401){
+        toast.error("Your session expired please login/register.", {
+          autoClose: 3000,
+          onClose: () => {
+          navigate("/login");
+          },
+          })
+      }else if (status === 404) {
+          console.log("Bad api request. Try agiain later.");
+      } else if (status === 500) {
+            alert("Server error.")
+            console.log("Server error");
+        }
+      else {
+        console.log("Network error:", error.message);
+      }  
+    } finally{
+      setIsUploading(false);
+    }
     setIsUploading(false);
 
   }
@@ -82,23 +137,57 @@ export default function Home() {
       query: promptInput,
       language: language,
     };
+    // get the token
 
-    console.log(userPrompt);
 
     try{
-      // set the prompt to be nil
-      // set is prompting to be true
-
       setPromptInput("");
       setIsPrompting(true);
+      const token = localStorage.getItem("tokenId");
+      if (!token){
+        // redirect to the login page
+        toast.error("Your are not authenticated. Please login/register", {
+        autoClose: 3000,
+        onClose: () => {
+          navigate("/login");
+        },
+        });
+        return;
+      }
       const response =  await fetch("http://localhost:8080/api/extractAnswer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(userPrompt),
       });
 
+      if (!response.ok){
+        // check for the not authenticated and redirect to login page
+        if (response.status === 401){
+          toast.error("Your session expired please login/register.", {
+          autoClose: 3000,
+          onClose: () => {
+          navigate("/login");
+          },
+          })
+        }
+        // I will get the data in the form of the string 
+        const err = await response.json();
+        console.log(err);
+        // Print the error here
+        console.log("Status Code: ", err.error.code);
+        console.log("Error: ", err.error.message);
+
+        // This is the error being obtained.
+        if (err.error.message == "No table"){
+          alert("Please upload the book first.")
+          return;
+        }
+        alert(err.error.message)
+        return
+      }
       // as the response now in the form of the stream so work according to it
       // set a reader and decoder
       const reader = response.body.getReader();
@@ -127,15 +216,80 @@ export default function Home() {
       console.log(err);
     }
   }
+
+
+  // for getting all the books titles from the server for certain user
+  useEffect(()=>{
+    const token = localStorage.getItem("tokenId");
+    const getBooks = async ()=>{
+    try{
+        const response = axios.get("http://localhost:8080/api/getBooks", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+
+        const respondedData = (await response).data
+        console.log("From home: ", (await response).data)
+        console.log("Responed data: ", respondedData.data);
+
+
+        // set the books here
+        setBooks(respondedData.data);
+        console.log("Book id: ", respondedData[0].bookId);
+        console.log("BokName: ", respondedData[0].bookName);
+    } catch(error){
+        console.log(error);
+    }
+  }
+
+  getBooks();
+  },[])
+
+// for getting all the conversation
+  const getConversation = async (book)=>{
+    // call the handler and get the data based on it
+    // call the handler of the chat conversation and get the data from it
+    const bookId = book.bookId;
+    const bookName = book.bookName;
+    const bookData = {
+      "bookId": bookId,
+      "bookName": bookName,
+    };
+    const token = localStorage.getItem("tokenId");
+    try{
+    axios.get("http://localhost:8080/api/getConversation", {
+      params: bookData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        }
+      });
+    }catch(error){
+      const status = error.response?.status;
+      // check for all kinds of status
+      if (status === 401){
+        // simply redirect to the login page
+        toast.error("Your are not authenticated. Please login/register", {
+        autoClose: 3000,
+        onClose: () => {
+        navigate("/login");
+        },
+        });
+      }
+      console.log(error);
+    } finally{
+      console.log("Chat coversation end here.");
+    }
+  }
+
   return (
     <div id='main'>
-
       <div id='navBar'>
         <NavBar fileUploadStatusChanger={setUploadBar} status = {uploadBar} />
       </div>
     
       <div id='chatHistory'>
-        <ChatHistory/>
+        <ChatHistory allBooksData={books} bookConversation={getConversation}/>
       </div>
 
       <div id='answer-section'>
@@ -154,11 +308,6 @@ export default function Home() {
             </div> 
           ))}
 
-          {/* {isPrompting && (
-            <div className="chat-message assistant typing">
-              Thinking...
-            </div>
-          )} */}
         </div>
       </div>
 

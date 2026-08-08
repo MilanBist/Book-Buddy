@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	askllm "github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/askLLm"
@@ -11,87 +10,104 @@ import (
 )
 
 func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
-	// get the data from the form and work upon it
-
-	// Answer the question by the user
+	// get user data and decode it
 	var userQuery *models.Question
-	// now decode the data
 	json.NewDecoder(r.Body).Decode(&userQuery)
 
-	fmt.Println(userQuery)
+	// check the userData
+	fmt.Println("[HANDLING RAW QUESTION]: User query",userQuery)
 
-	// if the query is just nil
+	// if the user query is empty send user error as bad request
 	if userQuery.Query == ""{
-		w.Write([]byte("Empty query."))
+		http.Error(w, "Empty query", http.StatusBadRequest)
 		return
 	}
-	// // convert the given query to english language
-	// if userQuery.Language != "English"{
-	// 	// first convert the language to the english language
-	// }
-	// check if the userQuery is of which language
-	language, err := askllm.CheckLanguage(userQuery.Query, h.server)
 
+	// detect the language of the prompt
+	language, err := askllm.CheckLanguage(userQuery.Query, h.server)
 	if err != nil{
-		log.Println(err)
+		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		response := models.APIResponse{
+			Success: false,
+			Message: err.Error(),
+		}
+		json.NewEncoder(w).Encode(&response)
 		return
 	} 
 
-	// after that I will get the language of the given prompt
-	// if the language is english just continue if not just convert
-	// the given provided language to english but semantic emotions in it
-	// must be preserved
+	fmt.Println("[HANDLE RAW QUESTION]: Language detected is: ", language)
+	
 
-	if language != "English" || language == "English"{
-		// now convert the given userQuery to the English string
-		// convert the user query  to english
-		englishQuery, err := askllm.ConvertToEnglish(userQuery.Query, h.server)
+	// if the language is not english convert to the english and set the userQuery.query to be english prompt
+	if language != "English"{
+		englished, err := askllm.ConvertToEnglish(userQuery.Query, h.server)
 		if err != nil{
-			log.Println(err)
+		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			response := models.APIResponse{
+				Success: false,
+				Message: err.Error(),
+			}
+			json.NewEncoder(w).Encode(&response)
 			return
 		}		
-
-		// now set the userQuery be english query
-		userQuery.Query = englishQuery
+		userQuery.Query = englished
 	}
 
-	fmt.Println("UserQuery: ",userQuery)
-	// now since the question asked is converted in the english
+	fmt.Println()
+	fmt.Println()
+	fmt.Println("[HANDLE RAW QUESTION]: The english query is: ",userQuery.Query)
+	fmt.Println()
+	fmt.Println()
 
+
+	// generating the embeddings of the user query
 	ans, err := extractanswer.GenerateEmebedding(userQuery.Query, h.server)
 	if err != nil{
-		log.Fatal("Error in generating the embeddings.")
+		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		response := models.APIResponse{
+			Success: false,
+			Message: err.Error(),
+		}
+		json.NewEncoder(w).Encode(&response)
+		return
 	}
 
 	// with the help of the given ans as the embeddings now return the 
 	// top 10 splitted docx realted to this one
-
 	requiredDocx, err := extractanswer.FindBestEmbeddings(h.server.Store, ans)
 	if err != nil{
-		log.Fatal("Error in extracting the answer. ", err)
-	}
-
-	// generate answers based on the given docx
-	llmResponse, err := askllm.AskLLM(requiredDocx, userQuery.Query, h.server)
-
-
-	fmt.Println(llmResponse)
-
-	// response the required docx with the language in which the user wants it
-	if userQuery.Language != "English" || userQuery.Language == "English"{
-		err = askllm.GenerateInRequiredLanguage(llmResponse, userQuery.Language, h.server, w, r)
-		if err != nil{
-			log.Println("Error in generating in required language.")
-			return
+		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		response := models.APIResponse{
+			Success: false,
+			Message: err.Error(),
 		}
+		json.NewEncoder(w).Encode(&response)
 		return
 	}
 
-	// return this response to the frontend
-	// result := map[string]string{"Response": llmResponse}
-	// err = json.NewEncoder(w).Encode(result)
-	// if err != nil{
-	// 	fmt.Println("Error in encoding the response.")
-	// 	return
-	// }
+	// get the userId based on the context
+	userId := r.Context().Value("userId").(int)
+	bookId := 1
+
+	// generate answers based on the given docx
+	err = askllm.AskLLM(requiredDocx, userQuery.Query, h.server, userQuery.Language, w, r, userId, bookId,  h.server.PostgresDB)
+	if err != nil{
+		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		response := models.APIResponse{
+			Success: false,
+			Message: err.Error(),
+		}
+		json.NewEncoder(w).Encode(&response)
+		return
+	}
 }

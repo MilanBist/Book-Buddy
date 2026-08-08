@@ -3,11 +3,14 @@ package api
 import (
 	"net/http"
 	"time"
+
 	"github.com/MilanBist/AI-Powered-Book-Answerer/config"
+	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/middlewares"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/qdrant/go-client/qdrant"
 )
 
@@ -18,7 +21,7 @@ type Handler struct{
 	server *models.Server
 }
 
-func NewServer(db *qdrant.Client, cfg *config.Config) *models.Server{
+func NewServer(vectorStore *qdrant.Client, cfg *config.Config, postgres *pgxpool.Pool) *models.Server{
 	r := chi.NewRouter()
 
 
@@ -39,8 +42,9 @@ func NewServer(db *qdrant.Client, cfg *config.Config) *models.Server{
 
   	server := &models.Server{
 		Router: r,
-		Store: db,
+		Store: vectorStore,
 		Config: cfg,
+		PostgresDB: postgres,
 	}
 
 	handler := &Handler{
@@ -64,19 +68,29 @@ func(h *Handler) setupRoutes(){
 			r.Get("/status", func(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte("Success in API call!"))
 			})
-			// extract pdf + create embeddings + store in vector db
-			r.Post("/handlePdf", h.HandleRawPdfFile)
 
-			// get the question -> create embedding -> extract relevant data from the vector db
-			r.Post("/extractAnswer", h.HandleRawQuestion)
-
-
-			r.Post("/login", h.HandleRawQuestion)
+			// for the login and registration
+			r.Post("/login", h.HandleLogin)
+			r.Post("/register", h.HandleRegister)
 
 
-			r.Post("/register", h.HandleRawQuestion)
+			// create the protected handlers
+			r.Group(func(r chi.Router){
+				// add the middlewares here
+				r.Use(middlewares.LoggingMiddleware)
+				r.Use(middlewares.AuthMiddleware)
 
+
+				// extract pdf + create embeddings + store in vector db
+				r.Post("/handlePdf", h.HandleRawPdfFile)
+				// get the question -> create embedding -> extract relevant data from the vector db
+				r.Post("/extractAnswer", h.HandleRawQuestion)
+
+				// in order to get the books and the conversation insdie of that book
+				r.Get("/getBooks", h.HandleGettingBooks)
+				r.Get("/getConversation", h.HandleConversation)
+			})
+
+			
 		})
-  	
-	//
 }

@@ -21,9 +21,12 @@ func main(){
 		log.Fatal(err)
 	}
 
+	// postgres data server connection
+	postgresStore, err := db.PostgresConnection()
+
 
 	// if successfully created a new client just pass the vector store and cfg file to create server
-	server := api.NewServer(vectorStore, cfg)
+	server := api.NewServer(vectorStore, cfg, postgresStore)
 
 
 	// configure port

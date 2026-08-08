@@ -2,7 +2,7 @@ package extractanswer
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/tmc/langchaingo/llms/ollama"
 )
@@ -14,8 +14,7 @@ func GenerateEmebedding(splittedDocx string, s *models.Server) ([]float32, error
 	)
 
 	if err != nil{
-		fmt.Println("Error in splitting docx.")
-		return nil,err
+		return nil, errors.New("Error in splitting the docx.")
 	}
 
 	newString := []string{splittedDocx}
@@ -23,7 +22,7 @@ func GenerateEmebedding(splittedDocx string, s *models.Server) ([]float32, error
 	// now generate result with the given llm
 	embedding, err := llm.CreateEmbedding(context.Background(), newString)
 	if err != nil{
-		return  nil, err
+		return  nil, errors.New("Error in creating the embeddings.")
 	}
 	singleEmbedding := embedding[0]
 	

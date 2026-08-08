@@ -1,26 +1,25 @@
 package askllm
 
 import (
-	"log"
+	"net/http"
 
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 
-func AskLLM(docx []string, query string, h *models.Server) (string, error){
-	var aiGeneratedResult string
+func AskLLM(docx []string, query string, h *models.Server, language string, w http.ResponseWriter, r *http.Request, userId, bookId int, db *pgxpool.Pool) (error){
 	// get the proper prompt add thi docx to the prompt and then send 
 	// whole of the augementation to the LLM and generate the result
 	// get the data from the LLM and respond to the frontend
 
-	promptTemplate, err := QueryAnswerPrompt(docx, query)
-	if err != nil{
-		log.Fatal(err)
-	}
-
+	promptTemplate := QueryAnswerPrompt(docx, query, language)
 	// look how the prompt template seems?
 	
-	aiGeneratedResult, err = GenerateResult(promptTemplate, h)
-	return aiGeneratedResult, nil
-	
+	err := GenerateResultAndSendToFrontend(query, promptTemplate, h, w, r, userId, bookId, db)
+
+	if err != nil{
+		return err
+	}
+	return nil
 }

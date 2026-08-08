@@ -3,9 +3,9 @@ package extractpdf
 import (
 	"context"
 	"fmt"
-	"strings"
 	"os"
 	"strconv"
+	"strings"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/qdrant/go-client/qdrant"
 	"github.com/tmc/langchaingo/llms/ollama"
@@ -14,9 +14,8 @@ import (
 func CreateEmbeddings(splittedDocx []string, s *models.Server) ([][]float32, error) {
 	// create the ollama client
 	llm, err := ollama.New(
-		ollama.WithModel(s.Config.OllamaModel),
+		ollama.WithModel(s.Config.OllamaEmbeddingModel),
 	)
-
 	if err != nil{
 		fmt.Println("Error in splitting docx.")
 		return nil,err
@@ -27,6 +26,7 @@ func CreateEmbeddings(splittedDocx []string, s *models.Server) ([][]float32, err
 		splittedDocx,
 	)
 	if err != nil{
+		fmt.Println("[CREATE EMBEDDINGS] : Error is: ", err)
 		fmt.Println("Error in creating embeddings.")
 		return nil,err
 	}
@@ -50,6 +50,7 @@ func createCollectionWithName(splittedDocx []string, embededBook [][]float32, s 
 
 	fmt.Println("[COLLECTION EXISTENCE]: ", exists)
 
+	// if the collection doesn't exists
 	if !exists{
 		err = client.CreateCollection(context.Background(), &qdrant.CreateCollection{
 			CollectionName: "AI_Book_summarizer",
@@ -64,7 +65,6 @@ func createCollectionWithName(splittedDocx []string, embededBook [][]float32, s 
 		return err
 		}
 	}
-
 	// length of the splittedDocx
 	fmt.Println("The length is : ", len(splittedDocx))
 
@@ -144,7 +144,6 @@ func createCollectionWithName(splittedDocx []string, embededBook [][]float32, s 
 func VectorStore(splittedDocx []string, s *models.Server, fileName string) error{
 	newPath := "./output"
 	_, err := os.ReadDir(newPath)
-
 	if err != nil{
 		err := os.MkdirAll(newPath, 0755)
 		if err != nil{
@@ -161,10 +160,8 @@ func VectorStore(splittedDocx []string, s *models.Server, fileName string) error
 	bookTitle = book[0]
 	fmt.Println("Book title saved: ", bookTitle)
 
-	// first create the embedding of each of the given docx
 	response, err := CreateEmbeddings(splittedDocx, s)
 	if err != nil{
-		fmt.Println("Error in creating the embeddings.")
 		return err
 	}
 
@@ -173,7 +170,7 @@ func VectorStore(splittedDocx []string, s *models.Server, fileName string) error
 	err = createCollectionWithName(splittedDocx, response, s, bookTitle)
 	if err != nil{
 		return err
-	}
+	}	
 
 
 	fmt.Println("File name with the giiven is stored. ", bookTitle)
