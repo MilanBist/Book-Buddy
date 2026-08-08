@@ -1,5 +1,5 @@
 import '../src/App.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import axios from 'axios';
 import FileInput from '../components/FileInput';
 import SearchBar from '../components/SearchBar';
@@ -33,20 +33,25 @@ export default function Home() {
 
   // for setting the data to the main place
   const [data, setData] = useState("");
-  const [message, setMessage] = useState([]);
+  const [message, setMessage] = useState({});
 
 
   // when the processing is being done by the backend
   const [isPrompting, setIsPrompting] = useState(false);
 
+  // set for the books that I am getting
+  const [books, setBooks] = useState([]);
+
+  // for the book id and bookName in order to receive the conversaton
+  const [forConversation, setForConversation] = useState(new Map());
+
 
   // handle the fileupload 
   const handlefileUpload = async (file)=>{
     setIsUploading(true);
-    // setResult(null);
 
     // get the token string
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("tokenId");
     if (!token){
       // redirect to the login page
       toast.error("Your are not authenticated. Please login/register", {
@@ -64,7 +69,7 @@ export default function Home() {
       setIsUploading(true);
       const response = await axios.post("http://localhost:8080/api/handlePdf", formData, {
         headers:{
-          Authorization: `Authentication ${token}`,
+          Authorization: `Bearer ${token}`,
         }
       }
       );
@@ -84,17 +89,28 @@ export default function Home() {
       }
     
     } catch(err){
-        console.log(err)
-        const responseData = response.data;
-        const success = responseData.success;
-        const msg = responseData.message;
+      console.log(err.response?.status)
+      const status = err.response?.status;
 
-        alert(msg);
+      if (status === 401){
+        toast.error("Your session expired please login/register.", {
+          autoClose: 3000,
+          onClose: () => {
+          navigate("/login");
+          },
+          })
+      }else if (status === 404) {
+          console.log("Bad api request. Try agiain later.");
+      } else if (status === 500) {
+            alert("Server error.")
+            console.log("Server error");
+        }
+      else {
+        console.log("Network error:", error.message);
+      }  
     } finally{
       setIsUploading(false);
     }
-
-  // since successfully uploaded
     setIsUploading(false);
 
   }
@@ -127,7 +143,7 @@ export default function Home() {
     try{
       setPromptInput("");
       setIsPrompting(true);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("tokenId");
       if (!token){
         // redirect to the login page
         toast.error("Your are not authenticated. Please login/register", {
@@ -136,6 +152,7 @@ export default function Home() {
           navigate("/login");
         },
         });
+        return;
       }
       const response =  await fetch("http://localhost:8080/api/extractAnswer", {
         method: "POST",
@@ -147,6 +164,15 @@ export default function Home() {
       });
 
       if (!response.ok){
+        // check for the not authenticated and redirect to login page
+        if (response.status === 401){
+          toast.error("Your session expired please login/register.", {
+          autoClose: 3000,
+          onClose: () => {
+          navigate("/login");
+          },
+          })
+        }
         // I will get the data in the form of the string 
         const err = await response.json();
         console.log(err);
@@ -190,15 +216,80 @@ export default function Home() {
       console.log(err);
     }
   }
+
+
+  // for getting all the books titles from the server for certain user
+  useEffect(()=>{
+    const token = localStorage.getItem("tokenId");
+    const getBooks = async ()=>{
+    try{
+        const response = axios.get("http://localhost:8080/api/getBooks", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+
+        const respondedData = (await response).data
+        console.log("From home: ", (await response).data)
+        console.log("Responed data: ", respondedData.data);
+
+
+        // set the books here
+        setBooks(respondedData.data);
+        console.log("Book id: ", respondedData[0].bookId);
+        console.log("BokName: ", respondedData[0].bookName);
+    } catch(error){
+        console.log(error);
+    }
+  }
+
+  getBooks();
+  },[])
+
+// for getting all the conversation
+  const getConversation = async (book)=>{
+    // call the handler and get the data based on it
+    // call the handler of the chat conversation and get the data from it
+    const bookId = book.bookId;
+    const bookName = book.bookName;
+    const bookData = {
+      "bookId": bookId,
+      "bookName": bookName,
+    };
+    const token = localStorage.getItem("tokenId");
+    try{
+    axios.get("http://localhost:8080/api/getConversation", {
+      params: bookData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        }
+      });
+    }catch(error){
+      const status = error.response?.status;
+      // check for all kinds of status
+      if (status === 401){
+        // simply redirect to the login page
+        toast.error("Your are not authenticated. Please login/register", {
+        autoClose: 3000,
+        onClose: () => {
+        navigate("/login");
+        },
+        });
+      }
+      console.log(error);
+    } finally{
+      console.log("Chat coversation end here.");
+    }
+  }
+
   return (
     <div id='main'>
-
       <div id='navBar'>
         <NavBar fileUploadStatusChanger={setUploadBar} status = {uploadBar} />
       </div>
     
       <div id='chatHistory'>
-        <ChatHistory/>
+        <ChatHistory allBooksData={books} bookConversation={getConversation}/>
       </div>
 
       <div id='answer-section'>
@@ -217,11 +308,6 @@ export default function Home() {
             </div> 
           ))}
 
-          {/* {isPrompting && (
-            <div className="chat-message assistant typing">
-              Thinking...
-            </div>
-          )} */}
         </div>
       </div>
 

@@ -93,7 +93,6 @@ export default function LoginForm(){
             console.log("Login response is: ", resp.data);
             // update the token value from the local storage
             localStorage.setItem("tokenId", resp.data["data"]["token"]);
-
             navigate("/");
         }).catch((err) => {
             // check for the headers here

@@ -1,14 +1,12 @@
+import { useEffect, useState } from 'react';
 import '../styles/button.css'
 import '../styles/liststyle.css'
-
 import { ArrowUpRight } from "lucide-react";
-export default function ChatHistory(){
-    // this will contain:
-    // 1. Search Chat -> Button 
-    // 2. NewChat -> Button 
-    // 3. Recents -> scorll bar
+import axios, { all } from 'axios';
 
 
+export default function ChatHistory({allBooksData, bookConversation}){
+    console.log("Chat History: ", allBooksData);
     return(
         <div id="sideBar" >
             <h2>CHAT HISTORY</h2>
@@ -21,21 +19,16 @@ export default function ChatHistory(){
             </div>
 
             <div id='sidebar-bottom'>
-
                 <div id="recents">
                     <h2 >Recents</h2>
-                    <ul>                    
-                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                        <li className='list'>Item1n <ArrowUpRight className='list__icon-wrapper' size={18}/></li>
-                    
+                    <ul>   
+                        {
+                            allBooksData.map((book)=>{
+                                return(
+                                <li className='list' key={book.bookId} onClick={bookConversation(book)}>{book.bookName} Book 1<ArrowUpRight className='list__icon-wrapper' size={18}/></li>
+                                );
+                            })
+                        }                 
                     </ul>
                  </div>
             </div>
