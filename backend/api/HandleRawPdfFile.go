@@ -48,7 +48,7 @@ func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 			}
 		}
 	}
-	// cerate the file
+	// create the file
 	fullPath := folderPath + "/" + fileName
 	copiedFile, err := os.Create(fullPath)
 	if err != nil{

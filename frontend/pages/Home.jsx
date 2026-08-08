@@ -33,7 +33,7 @@ export default function Home() {
 
   // for setting the data to the main place
   const [data, setData] = useState("");
-  const [message, setMessage] = useState({});
+  const [message, setMessage] = useState([]);
 
 
   // when the processing is being done by the backend
@@ -43,7 +43,7 @@ export default function Home() {
   const [books, setBooks] = useState([]);
 
   // for the book id and bookName in order to receive the conversaton
-  const [forConversation, setForConversation] = useState(new Map());
+  const [forConversation, setForConversation] = useState({});
 
 
   // handle the fileupload 
@@ -82,7 +82,13 @@ export default function Home() {
       const successMsg = responseData.message;
       console.log("Success message: ", successMsg);
 
-
+      const bookId = responseData.data.bookId;
+      const bookName = responseData.data.bookName;
+      const bookData = {
+        "bookId": bookId,
+        "bookName": bookName,
+      };
+      setBooks(bookData);
       if (success){
         alert("Your book is uploaded successfully \n Now you can ask??j");
         return;
@@ -133,9 +139,14 @@ export default function Home() {
     // main task here is to  get the data from the prompt input bar and send
     // to the backend localhost/api/extractAnswer or like that
     // data to send with the prompt
+    if (books === null){
+      alert("Upload the book first.");
+      return;
+    }
     const userPrompt  = {
       query: promptInput,
       language: language,
+      bookId: books.bookId,
     };
     // get the token
 
@@ -256,6 +267,8 @@ export default function Home() {
       "bookId": bookId,
       "bookName": bookName,
     };
+
+    setBooks(bookData);
     const token = localStorage.getItem("tokenId");
     try{
     axios.get("http://localhost:8080/api/getConversation", {

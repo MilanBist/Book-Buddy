@@ -95,10 +95,9 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 
 	// get the userId based on the context
 	userId := r.Context().Value("userId").(int)
-	bookId := 1
 
 	// generate answers based on the given docx
-	err = askllm.AskLLM(requiredDocx, userQuery.Query, h.server, userQuery.Language, w, r, userId, bookId,  h.server.PostgresDB)
+	err = askllm.AskLLM(requiredDocx, userQuery.Query, h.server, userQuery.Language, w, r, userId, userQuery.BookId,  h.server.PostgresDB)
 	if err != nil{
 		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
 		w.Header().Set("Content-Type", "application/json")

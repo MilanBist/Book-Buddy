@@ -19,6 +19,7 @@ type Server struct{
 type Question struct{
 	Query 		string	`json:"query"`
 	Language 	string	`json:"language"`
+	BookId		int		`json:"bookId"`
 }
 
 type Login struct{
@@ -69,5 +70,6 @@ type BookData struct{
 }
 
 type Messages struct{
-
+	UserQuestion	string
+	LLMResponse		string
 }

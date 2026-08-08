@@ -22,7 +22,8 @@ CREATE TABLE "conversation" (
   "userQuestion" TEXT NOT NULL,
   "chatResponse" TEXT NOT NULL,
   "userId" INTEGER NOT NULL,
-  "bookId" INTEGER NOT NULL
+  "bookId" INTEGER NOT NULL,
+  "timestamp" TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)
 );
 
 ALTER TABLE "books" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") DEFERRABLE INITIALLY IMMEDIATE;
