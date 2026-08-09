@@ -8,12 +8,9 @@ import (
 )
 
 
-func AskLLM(docx []string, query string, h *models.Server, language string, w http.ResponseWriter, r *http.Request, userId, bookId int, db *pgxpool.Pool) (error){
-	// get the proper prompt add thi docx to the prompt and then send 
-	// whole of the augementation to the LLM and generate the result
-	// get the data from the LLM and respond to the frontend
+func AskLLM(docx []string, preChats []models.Messages, query string, h *models.Server, language string, w http.ResponseWriter, r *http.Request, userId, bookId int, db *pgxpool.Pool) (error){
 
-	promptTemplate := QueryAnswerPrompt(docx, query, language)
+	promptTemplate := QueryAnswerPrompt(docx, query,preChats, language)
 	// look how the prompt template seems?
 	
 	err := GenerateResultAndSendToFrontend(query, promptTemplate, h, w, r, userId, bookId, db)

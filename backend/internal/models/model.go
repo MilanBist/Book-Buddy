@@ -70,6 +70,11 @@ type BookData struct{
 }
 
 type Messages struct{
-	UserQuestion	string
-	LLMResponse		string
+	UserQuestion	string	`json:"userQuestion"`
+	LLMResponse		string	`json:"llmResponse"`
+}
+
+type ForConversation struct{
+	BookId 		int		`json:"bookId"`
+	BookName	string	`json:"bookName"`
 }

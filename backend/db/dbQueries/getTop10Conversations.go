@@ -3,7 +3,6 @@ package dbqueries
 import (
 	"context"
 	"fmt"
-
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/jackc/pgx/v5/pgxpool"
 )

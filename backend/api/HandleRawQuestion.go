@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	dbqueries "github.com/MilanBist/AI-Powered-Book-Answerer/db/dbQueries"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	askllm "github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/askLLm"
 	extractanswer "github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/extractAnswer"
@@ -96,8 +98,24 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 	// get the userId based on the context
 	userId := r.Context().Value("userId").(int)
 
+	// get top 10 previous chats on the basis of the given bookId and userId
+	err, top10Chats := dbqueries.GetTop10Chats(userId, userQuery.BookId, h.server.PostgresDB)
+
+	if err != nil{
+		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		response := models.APIResponse{
+			Success: false,
+			Message: err.Error(),
+		}
+		json.NewEncoder(w).Encode(&response)
+		return
+	}
+
+
 	// generate answers based on the given docx
-	err = askllm.AskLLM(requiredDocx, userQuery.Query, h.server, userQuery.Language, w, r, userId, userQuery.BookId,  h.server.PostgresDB)
+	err = askllm.AskLLM(requiredDocx,top10Chats, userQuery.Query, h.server, userQuery.Language, w, r, userId, userQuery.BookId,  h.server.PostgresDB)
 	if err != nil{
 		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
 		w.Header().Set("Content-Type", "application/json")

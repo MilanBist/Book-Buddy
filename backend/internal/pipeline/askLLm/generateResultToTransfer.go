@@ -55,7 +55,5 @@ func GenerateResultAndSendToFrontend(query, prompt string, h *models.Server, w h
 
 	// add the conversation to the database
 	dbqueries.AddConversation(query, finalChunk.String(), userId, bookId, db)
-
 	return nil
-
 }
