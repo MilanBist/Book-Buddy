@@ -25,48 +25,8 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	// detect the language of the prompt
-	language, err := askllm.CheckLanguage(userQuery.Query, h.server)
-	if err != nil{
-		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		response := models.APIResponse{
-			Success: false,
-			Message: err.Error(),
-		}
-		json.NewEncoder(w).Encode(&response)
-		return
-	} 
 
-	fmt.Println("[HANDLE RAW QUESTION]: Language detected is: ", language)
-	
-
-	// if the language is not english convert to the english and set the userQuery.query to be english prompt
-	if language != "English"{
-		englished, err := askllm.ConvertToEnglish(userQuery.Query, h.server)
-		if err != nil{
-		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusInternalServerError)
-			response := models.APIResponse{
-				Success: false,
-				Message: err.Error(),
-			}
-			json.NewEncoder(w).Encode(&response)
-			return
-		}		
-		userQuery.Query = englished
-	}
-
-	fmt.Println()
-	fmt.Println()
-	fmt.Println("[HANDLE RAW QUESTION]: The english query is: ",userQuery.Query)
-	fmt.Println()
-	fmt.Println()
-
-
-	// generating the embeddings of the user query
+	// using bge-m3 is multilingual embedding generator so mostly same embedding is generated for the same thing in different language
 	ans, err := extractanswer.GenerateEmebedding(userQuery.Query, h.server)
 	if err != nil{
 		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
@@ -80,9 +40,7 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	// with the help of the given ans as the embeddings now return the 
-	// top 10 splitted docx realted to this one
-	requiredDocx, err := extractanswer.FindBestEmbeddings(h.server.Store, ans)
+	requiredDocx, err := extractanswer.FindBestEmbeddings(h.server.Store, ans, userQuery.BookName)
 	if err != nil{
 		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
 		w.Header().Set("Content-Type", "application/json")
@@ -97,9 +55,8 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 
 	// get the userId based on the context
 	userId := r.Context().Value("userId").(int)
-
 	// get top 10 previous chats on the basis of the given bookId and userId
-	err, top10Chats := dbqueries.GetTop10Chats(userId, userQuery.BookId, h.server.PostgresDB)
+	err, top5Chats := dbqueries.GetTop5Chats(userId, userQuery.BookId, h.server.PostgresDB)
 
 	if err != nil{
 		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
@@ -114,8 +71,9 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 	}
 
 
+	fmt.Println("[HANDLE RAW QUESTION] Book Id: ", userQuery.BookId)
 	// generate answers based on the given docx
-	err = askllm.AskLLM(requiredDocx,top10Chats, userQuery.Query, h.server, userQuery.Language, w, r, userId, userQuery.BookId,  h.server.PostgresDB)
+	err = askllm.AskLLM(requiredDocx,top5Chats, userQuery.Query, h.server, userQuery.Language, w, r, userId, userQuery.BookId,  h.server.PostgresDB)
 	if err != nil{
 		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
 		w.Header().Set("Content-Type", "application/json")

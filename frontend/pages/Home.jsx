@@ -42,10 +42,6 @@ export default function Home() {
   // set for the books that I am getting
   const [books, setBooks] = useState([]);
 
-  // for the book id and bookName in order to receive the conversaton
-  const [forConversation, setForConversation] = useState({});
-
-
   // handle the fileupload 
   const handlefileUpload = async (file)=>{
     setIsUploading(true);
@@ -67,6 +63,7 @@ export default function Home() {
     // after appending the file now my task is to send the request using the axios to the browser
     try{
       setIsUploading(true);
+      setMessage([]);
       const response = await axios.post("http://localhost:8080/api/handlePdf", formData, {
         headers:{
           Authorization: `Bearer ${token}`,
@@ -81,7 +78,6 @@ export default function Home() {
       const success = responseData.success;
       const successMsg = responseData.message;
       console.log("Success message: ", successMsg);
-
       const bookId = responseData.data.bookId;
       const bookName = responseData.data.bookName;
       const bookData = {
@@ -146,7 +142,8 @@ export default function Home() {
     const userPrompt  = {
       query: promptInput,
       language: language,
-      bookId: books.bookId,
+      bookId: books[0]["bookId"],
+      bookName: books[0]["bookName"],
     };
     // get the token
 
@@ -241,14 +238,13 @@ export default function Home() {
         });
 
         const respondedData = (await response).data
-        console.log("From home: ", (await response).data)
-        console.log("Responed data: ", respondedData.data);
-
-
         // set the books here
-        setBooks(respondedData.data);
-        console.log("Book id: ", respondedData[0].bookId);
-        console.log("BokName: ", respondedData[0].bookName);
+        if (respondedData.data != null){
+          console.log("Responded books: ", respondedData.data)
+          console.log("Responded books: ", respondedData.data[0]["bookId"])
+          setBooks(respondedData.data);
+        }
+        
     } catch(error){
         console.log(error);
     }
@@ -261,22 +257,28 @@ export default function Home() {
   const getConversation = async (book)=>{
     // call the handler and get the data based on it
     // call the handler of the chat conversation and get the data from it
-    const bookId = book.bookId;
-    const bookName = book.bookName;
+    const bookId = book["bookId"];
+    const bookName = book["bookName"];
     const bookData = {
       "bookId": bookId,
       "bookName": bookName,
     };
 
-    setBooks(bookData);
+    console.log("Book Information: ", bookData);
+
     const token = localStorage.getItem("tokenId");
     try{
-    axios.get("http://localhost:8080/api/getConversation", {
+    const response = await axios.get("http://localhost:8080/api/getConversation", {
       params: bookData,
       headers: {
         Authorization: `Bearer ${token}`,
         }
       });
+
+      const responseData = (await response).data;
+
+      // after getting the response from the handler now the task is to show that one in the tab
+      setMessage(responseData["data"]);
     }catch(error){
       const status = error.response?.status;
       // check for all kinds of status

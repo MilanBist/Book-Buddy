@@ -64,6 +64,16 @@ func createCollectionWithName(splittedDocx []string, embededBook [][]float32, s 
 		fmt.Println("Error in creating the collection.")
 		return err
 		}
+
+		// add the indexing in the the qdrant bookName payload specifically
+		_,err = client.CreateFieldIndex(
+			context.Background(), 
+			&qdrant.CreateFieldIndexCollection{
+				CollectionName: "AI_Book_summarizer",
+				FieldName: "Title",
+				FieldType: qdrant.FieldType_FieldTypeBool.Enum(),
+			},
+		)
 	}
 	// length of the splittedDocx
 	fmt.Println("The length is : ", len(splittedDocx))
@@ -75,14 +85,6 @@ func createCollectionWithName(splittedDocx []string, embededBook [][]float32, s 
 	// create the points for the given embeddings
 	var points []*qdrant.PointStruct
 
-	// make the points by adding each of the above embeddings
-	// point is going to contain -> id, vector, payload
-	// payload is simply going to be the message 
-
-	// store the id in the .txt file so that it can be reused
-	// create the new file
-	// first check the file if it exists
-	
 
 	// check for the .txt file in the output
 	var stringedData string

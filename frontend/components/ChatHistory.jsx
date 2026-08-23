@@ -23,9 +23,10 @@ export default function ChatHistory({allBooksData, bookConversation}){
                     <h2 >Recents</h2>
                     <ul>   
                         {
+                            // insert in the side bar
                             allBooksData.map((book)=>{
                                 return(
-                                <li className='list' key={book.bookId} onClick={bookConversation(book)}>{book.bookName} Book 1<ArrowUpRight className='list__icon-wrapper' size={18}/></li>
+                                <li className='list' key={book.bookId} onClick={()=>bookConversation(book)}>{book.bookName} Book 1<ArrowUpRight className='list__icon-wrapper' size={18}/></li>
                                 );
                             })
                         }                 

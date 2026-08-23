@@ -20,6 +20,7 @@ type Question struct{
 	Query 		string	`json:"query"`
 	Language 	string	`json:"language"`
 	BookId		int		`json:"bookId"`
+	BookName	string 	`json:"bookName"`
 }
 
 type Login struct{
@@ -77,4 +78,9 @@ type Messages struct{
 type ForConversation struct{
 	BookId 		int		`json:"bookId"`
 	BookName	string	`json:"bookName"`
+}
+
+type ReturningConversation struct{
+	Role	string	`json:"role"`
+	Message		string	`json:"content"`
 }

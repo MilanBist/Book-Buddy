@@ -7,10 +7,10 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func GetTop10Chats(userId, bookId int, db *pgxpool.Pool)(error, []models.Messages){
+func GetTop5Chats(userId, bookId int, db *pgxpool.Pool)(error, []models.Messages){
 	query := `SELECT "userQuestion", "chatResponse" FROM "conversation" WHERE
 				"userId" = $1 AND "bookId" = $2
-				ORDER BY "timestamp" LIMIT 10;
+				ORDER BY "conversationTime" LIMIT 5;
 			`
 	rows, err := db.Query(context.Background(), query, userId, bookId)
 	if err != nil{
@@ -39,10 +39,10 @@ func GetTop10Chats(userId, bookId int, db *pgxpool.Pool)(error, []models.Message
 }
 
 
-func GetAllChats(userId, bookId int, db *pgxpool.Pool)(error, []models.Messages){
+func GetAllChats(userId, bookId int, db *pgxpool.Pool)(error, []models.ReturningConversation){
 	query := `SELECT "userQuestion", "chatResponse" FROM "conversation" WHERE
 				"userId" = $1 AND "bookId" = $2
-				ORDER BY "timestamp";
+				ORDER BY "conversationTime" ASC;
 			`
 	rows, err := db.Query(context.Background(), query, userId, bookId)
 	if err != nil{
@@ -52,20 +52,23 @@ func GetAllChats(userId, bookId int, db *pgxpool.Pool)(error, []models.Messages)
 
 	defer rows.Close()
 
-	var conversation []models.Messages
+	var conversation []models.ReturningConversation
 
 	for rows.Next(){
-		var conv models.Messages
+		var user models.ReturningConversation
+		var chat models.ReturningConversation
 
-		err := rows.Scan(&conv.UserQuestion, &conv.LLMResponse)
+		user.Role = "user"
+		chat.Role = "assistant"
+
+		err := rows.Scan(&user.Message, &chat.Message)
 		if err != nil{
 			fmt.Println("[DATABASE QUERY ERROR]: Error in reading the data.", err)
 			return err, nil
 		}
 
-		conversation = append(conversation, conv)
+		conversation = append(conversation, user)
+		conversation = append(conversation, chat)
 	}
-
 	return  nil, conversation
-
 }
