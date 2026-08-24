@@ -16,7 +16,7 @@ func FindBestEmbeddings(client *qdrant.Client, point []float32, bookName string)
 	searchResult, err := client.Query(context.Background(), &qdrant.QueryPoints{
 		CollectionName: "AI_Book_summarizer",
 		Query: qdrant.NewQuery(point...),
-		Limit: uint64Ptr(10),
+		Limit: uint64Ptr(3),
 		WithPayload: qdrant.NewWithPayload(true),
 		Filter: &qdrant.Filter{
 			Must: []*qdrant.Condition{
@@ -43,5 +43,7 @@ func FindBestEmbeddings(client *qdrant.Client, point []float32, bookName string)
 				bestResults = append(bestResults, textValue.GetStringValue())
 			}
 	}
+
+	fmt.Println("Best results are: ", bestResults)
 	return bestResults, nil
 }

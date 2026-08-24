@@ -6,11 +6,9 @@ import axios, { all } from 'axios';
 
 
 export default function ChatHistory({allBooksData, bookConversation}){
-    console.log("Chat History: ", allBooksData);
     return(
         <div id="sideBar" >
             <h2>CHAT HISTORY</h2>
-
             <div id="newChat">
                 <button className="button">New Chat</button>
             </div>

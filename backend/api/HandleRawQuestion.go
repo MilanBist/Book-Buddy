@@ -40,6 +40,7 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
+	fmt.Println("Book name being used is: ", userQuery.BookName)
 	requiredDocx, err := extractanswer.FindBestEmbeddings(h.server.Store, ans, userQuery.BookName)
 	if err != nil{
 		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)

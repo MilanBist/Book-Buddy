@@ -49,6 +49,7 @@ export default function SearchBar({handlePrompt, setPromptInput, promptInput, se
 
     const languages = [
         { code: "en", name: "English", symbol: "A" },
+        { code: "nep", name: "Nepali", symbol: "म" },
         { code: "zh", name: "Mandarin Chinese", symbol: "汉" },
         { code: "hi", name: "Hindi", symbol: "अ" },
         { code: "es", name: "Spanish", symbol: "Ñ" },
