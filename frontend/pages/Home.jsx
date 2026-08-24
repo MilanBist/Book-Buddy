@@ -19,8 +19,6 @@ export default function Home() {
   // for the uploading of the file through form
   const [isUploading, setIsUploading] = useState(false);
 
-  // after getting the result from the
-  const [result, setResult] = useState(null);
 
   // for showing the upload Bar visible or not in the page
   const [uploadBar, setUploadBar] = useState(false);
@@ -32,8 +30,7 @@ export default function Home() {
   const [promptInput, setPromptInput] = useState("");
 
   // for setting the data to the main place
-  const [data, setData] = useState("");
-  const [message, setMessage] = useState({});
+  const [message, setMessage] = useState([]);
 
 
   // when the processing is being done by the backend
@@ -42,9 +39,8 @@ export default function Home() {
   // set for the books that I am getting
   const [books, setBooks] = useState([]);
 
-  // for the book id and bookName in order to receive the conversaton
-  const [forConversation, setForConversation] = useState(new Map());
-
+  // set the current book being used
+  const [currentBook, setCurrentBook] = useState();
 
   // handle the fileupload 
   const handlefileUpload = async (file)=>{
@@ -81,8 +77,13 @@ export default function Home() {
       const success = responseData.success;
       const successMsg = responseData.message;
       console.log("Success message: ", successMsg);
-
-
+      const bookId = responseData.data.bookId;
+      const bookName = responseData.data.bookName;
+      const bookData = {
+        "bookId": bookId,
+        "bookName": bookName,
+      };
+      setCurrentBook(bookData);
       if (success){
         alert("Your book is uploaded successfully \n Now you can ask??j");
         return;
@@ -133,9 +134,15 @@ export default function Home() {
     // main task here is to  get the data from the prompt input bar and send
     // to the backend localhost/api/extractAnswer or like that
     // data to send with the prompt
+    if (books === null){
+      alert("Upload the book first.");
+      return;
+    }
     const userPrompt  = {
       query: promptInput,
       language: language,
+      bookId: currentBook["bookId"],
+      bookName: currentBook["bookName"],
     };
     // get the token
 
@@ -147,10 +154,10 @@ export default function Home() {
       if (!token){
         // redirect to the login page
         toast.error("Your are not authenticated. Please login/register", {
-        autoClose: 3000,
-        onClose: () => {
-          navigate("/login");
-        },
+          autoClose: 3000,
+          onClose: () => {
+            navigate("/login");
+          },
         });
         return;
       }
@@ -230,14 +237,13 @@ export default function Home() {
         });
 
         const respondedData = (await response).data
-        console.log("From home: ", (await response).data)
-        console.log("Responed data: ", respondedData.data);
-
-
         // set the books here
-        setBooks(respondedData.data);
-        console.log("Book id: ", respondedData[0].bookId);
-        console.log("BokName: ", respondedData[0].bookName);
+        if (respondedData.data != null){
+          console.log("Responded books: ", respondedData.data)
+          console.log("Responded books: ", respondedData.data[0]["bookId"])
+          setBooks(respondedData.data);
+        }
+        
     } catch(error){
         console.log(error);
     }
@@ -250,20 +256,28 @@ export default function Home() {
   const getConversation = async (book)=>{
     // call the handler and get the data based on it
     // call the handler of the chat conversation and get the data from it
-    const bookId = book.bookId;
-    const bookName = book.bookName;
+    const bookId = book["bookId"];
+    const bookName = book["bookName"];
     const bookData = {
       "bookId": bookId,
       "bookName": bookName,
     };
+    setCurrentBook(bookData);
     const token = localStorage.getItem("tokenId");
+
     try{
-    axios.get("http://localhost:8080/api/getConversation", {
+    const response = await axios.get("http://localhost:8080/api/getConversation", {
       params: bookData,
       headers: {
         Authorization: `Bearer ${token}`,
         }
       });
+
+      const responseData = (await response).data;
+      // after getting the response from the handler now the task is to show that one in the tab
+      if (responseData["data"] !== null){
+        setMessage(responseData["data"]);
+      }
     }catch(error){
       const status = error.response?.status;
       // check for all kinds of status
@@ -289,11 +303,10 @@ export default function Home() {
       </div>
     
       <div id='chatHistory'>
-        <ChatHistory allBooksData={books} bookConversation={getConversation}/>
+        <ChatHistory allBooksData={books} bookConversation={getConversation} />
       </div>
 
       <div id='answer-section'>
-
         <div id='uploadBar'>
           {uploadBar && < FileInput 
             onFileSelect={handlefileUpload} 
@@ -302,12 +315,11 @@ export default function Home() {
             setUpUploadBar = {setUploadBar}/>}
         </div>
         <div id="mainContent">
-          {message.map((m, index) => (
-            <div key={index} className={`chat-message ${m.role}`}>
-              <ReactMarkdown>{m.content}</ReactMarkdown>
-            </div> 
-          ))}
-
+              {message.map((m, index) => (
+                <div key={index} className={`chat-message ${m.role}`}>
+                  <ReactMarkdown>{m.content}</ReactMarkdown>
+                </div>
+              ))}
         </div>
       </div>
 

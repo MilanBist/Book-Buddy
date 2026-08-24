@@ -12,11 +12,8 @@ import (
 
 
 func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request){
-
 	var registerCredentials models.Register
-
 	json.NewDecoder(r.Body).Decode(&registerCredentials)
-
 	fmt.Println(registerCredentials)
 
 	// send all of the data to check and do things with the login 

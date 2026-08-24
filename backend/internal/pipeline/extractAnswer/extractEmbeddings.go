@@ -10,7 +10,7 @@ import (
 func GenerateEmebedding(splittedDocx string, s *models.Server) ([]float32, error) {
 	// create the ollama client
 	llm, err := ollama.New(
-		ollama.WithModel(s.Config.OllamaModel),
+		ollama.WithModel(s.Config.OllamaEmbeddingModel),
 	)
 
 	if err != nil{

@@ -27,6 +27,7 @@ func AddConversation(userQuery, response string, userId, bookId int, db *pgxpool
 	if err != nil{
 		// show the user that there is error
 		fmt.Println("[DATABASE CONNECTION]: Error in querying")
+		fmt.Println(err)
 		return http.StatusInternalServerError, errors.New("Error in doing")
 	}
 
