@@ -19,8 +19,6 @@ export default function Home() {
   // for the uploading of the file through form
   const [isUploading, setIsUploading] = useState(false);
 
-  // after getting the result from the
-  const [result, setResult] = useState(null);
 
   // for showing the upload Bar visible or not in the page
   const [uploadBar, setUploadBar] = useState(false);
@@ -32,7 +30,6 @@ export default function Home() {
   const [promptInput, setPromptInput] = useState("");
 
   // for setting the data to the main place
-  const [data, setData] = useState("");
   const [message, setMessage] = useState([]);
 
 
@@ -41,6 +38,9 @@ export default function Home() {
 
   // set for the books that I am getting
   const [books, setBooks] = useState([]);
+
+  // set the current book being used
+  const [currentBook, setCurrentBook] = useState();
 
   // handle the fileupload 
   const handlefileUpload = async (file)=>{
@@ -63,7 +63,6 @@ export default function Home() {
     // after appending the file now my task is to send the request using the axios to the browser
     try{
       setIsUploading(true);
-      setMessage([]);
       const response = await axios.post("http://localhost:8080/api/handlePdf", formData, {
         headers:{
           Authorization: `Bearer ${token}`,
@@ -84,7 +83,7 @@ export default function Home() {
         "bookId": bookId,
         "bookName": bookName,
       };
-      setBooks(bookData);
+      setCurrentBook(bookData);
       if (success){
         alert("Your book is uploaded successfully \n Now you can ask??j");
         return;
@@ -142,8 +141,8 @@ export default function Home() {
     const userPrompt  = {
       query: promptInput,
       language: language,
-      bookId: books[0]["bookId"],
-      bookName: books[0]["bookName"],
+      bookId: currentBook["bookId"],
+      bookName: currentBook["bookName"],
     };
     // get the token
 
@@ -155,10 +154,10 @@ export default function Home() {
       if (!token){
         // redirect to the login page
         toast.error("Your are not authenticated. Please login/register", {
-        autoClose: 3000,
-        onClose: () => {
-          navigate("/login");
-        },
+          autoClose: 3000,
+          onClose: () => {
+            navigate("/login");
+          },
         });
         return;
       }
@@ -263,10 +262,9 @@ export default function Home() {
       "bookId": bookId,
       "bookName": bookName,
     };
-
-    console.log("Book Information: ", bookData);
-
+    setCurrentBook(bookData);
     const token = localStorage.getItem("tokenId");
+
     try{
     const response = await axios.get("http://localhost:8080/api/getConversation", {
       params: bookData,
@@ -276,9 +274,10 @@ export default function Home() {
       });
 
       const responseData = (await response).data;
-
       // after getting the response from the handler now the task is to show that one in the tab
-      setMessage(responseData["data"]);
+      if (responseData["data"] !== null){
+        setMessage(responseData["data"]);
+      }
     }catch(error){
       const status = error.response?.status;
       // check for all kinds of status
@@ -304,11 +303,10 @@ export default function Home() {
       </div>
     
       <div id='chatHistory'>
-        <ChatHistory allBooksData={books} bookConversation={getConversation}/>
+        <ChatHistory allBooksData={books} bookConversation={getConversation} />
       </div>
 
       <div id='answer-section'>
-
         <div id='uploadBar'>
           {uploadBar && < FileInput 
             onFileSelect={handlefileUpload} 
@@ -317,12 +315,11 @@ export default function Home() {
             setUpUploadBar = {setUploadBar}/>}
         </div>
         <div id="mainContent">
-          {message.map((m, index) => (
-            <div key={index} className={`chat-message ${m.role}`}>
-              <ReactMarkdown>{m.content}</ReactMarkdown>
-            </div> 
-          ))}
-
+              {message.map((m, index) => (
+                <div key={index} className={`chat-message ${m.role}`}>
+                  <ReactMarkdown>{m.content}</ReactMarkdown>
+                </div>
+              ))}
         </div>
       </div>
 
