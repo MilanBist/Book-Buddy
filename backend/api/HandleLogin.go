@@ -61,7 +61,7 @@ func (h *LoginHandler) HandleLogin(w http.ResponseWriter, r *http.Request){
 	// return the true messaage to the frontend with the token string
 	response := models.APIResponse{
 		Success: true,
-		Message: "Registered Successfully.",
+		Message: "Logged in Successfully.",
 		Data: models.AuthData{
 			Token: tokenString,
 		},

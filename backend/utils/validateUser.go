@@ -1,9 +1,7 @@
 package utils
 
 import (
-	"fmt"
 	"regexp"
-
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 )
 
@@ -39,11 +37,11 @@ func validatePassword(password string) bool {
 	var numbers = regexp.MustCompile(`[0-9]`)
 	var specialCharacters = regexp.MustCompile(`[!@#$%^&*+]`)
 
-	fmt.Println(capitalLetters.MatchString(password))
-	fmt.Println(smallLetters.MatchString(password))
-	fmt.Println(numbers.MatchString(password))
-	fmt.Println(format.MatchString(password))
-	fmt.Println(specialCharacters.MatchString(password))
+	// fmt.Println(capitalLetters.MatchString(password))
+	// fmt.Println(smallLetters.MatchString(password))
+	// fmt.Println(numbers.MatchString(password))
+	// fmt.Println(format.MatchString(password))
+	// fmt.Println(specialCharacters.MatchString(password))
 
 	// all data must be satisfied
 	if format.MatchString(password) && capitalLetters.MatchString(password) && smallLetters.MatchString(password) && numbers.MatchString(password) && specialCharacters.MatchString(password) {
@@ -60,7 +58,7 @@ func validateAddress(address string) bool {
 		validated = true
 	}
 
-	fmt.Println("For validating the address ", validAddress)
+	// fmt.Println("For validating the address ", validAddress)
 	return validated
 }
 

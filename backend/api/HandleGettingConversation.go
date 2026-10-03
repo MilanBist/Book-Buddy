@@ -19,9 +19,6 @@ type UserConversationHandler struct{
 func(h *UserConversationHandler) HandleConversation(w http.ResponseWriter, r *http.Request){
 	// get the request as the bookId and the userId from the context
 	userId := r.Context().Value("userId").(int)
-
-
-
 	bookId := r.URL.Query().Get("bookId")
 	bookName := r.URL.Query().Get("bookName")
 

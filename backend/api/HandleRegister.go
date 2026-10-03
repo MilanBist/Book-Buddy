@@ -25,7 +25,6 @@ type RegisterHandler struct{
 func (h *RegisterHandler) HandleRegister(w http.ResponseWriter, r *http.Request){
 	var registerCredentials models.Register
 	json.NewDecoder(r.Body).Decode(&registerCredentials)
-	fmt.Println(registerCredentials)
 
 	isValid, msg := utils.ValidateUserRegister(registerCredentials)
 
@@ -90,7 +89,6 @@ func (h *RegisterHandler) HandleRegister(w http.ResponseWriter, r *http.Request)
 			Token: tokenString,
 		},
 	}
-	fmt.Println("[REGISTER HANDLER] Reponse data: ", response)
 	json.NewEncoder(w).Encode(&response)
 
 }
