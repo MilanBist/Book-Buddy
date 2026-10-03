@@ -9,8 +9,11 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func GenerateTokens(userId int64, email string) (string, error) {
+type Token struct{
+	AccessToken 	string
+}
 
+func(t *Token) GenerateTokens(userId int64, email string) (string, error) {
 	// role might be like user and admin
 
 	err := godotenv.Load()
@@ -34,10 +37,10 @@ func GenerateTokens(userId int64, email string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// create the string with the secret key
-	tokenString, err := token.SignedString(secretKey)
+	t.AccessToken, err = token.SignedString(secretKey)
 
 	if err != nil {
 		return "", err
 	}
-	return tokenString, nil
+	return t.AccessToken, nil
 }

@@ -6,11 +6,17 @@ import (
 	"net/http"
 	"strconv"
 
-	dbqueries "github.com/MilanBist/AI-Powered-Book-Answerer/db/dbQueries"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 )
 
-func(h *Handler) HandleConversation(w http.ResponseWriter, r *http.Request){
+type UserConversation interface{
+	GetAllChats(userId, bookId int) ([]models.ReturningConversation, error)
+}
+type UserConversationHandler struct{
+	Conversation 	UserConversation
+}
+
+func(h *UserConversationHandler) HandleConversation(w http.ResponseWriter, r *http.Request){
 	// get the request as the bookId and the userId from the context
 	userId := r.Context().Value("userId").(int)
 
@@ -26,7 +32,7 @@ func(h *Handler) HandleConversation(w http.ResponseWriter, r *http.Request){
 
 
 	// after gaining the bookInformation specifically Book Id and userId
-	err, allConversation := dbqueries.GetAllChats(userId, intBookId, h.server.PostgresDB)
+	allConversation, err := h.Conversation.GetAllChats(userId, intBookId)
 
 	if err != nil{
 		fmt.Println("[GETTING CONVERSATION ENDPOINT]: Error in getting the conversation.")

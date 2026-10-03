@@ -7,10 +7,15 @@ import (
 	"github.com/tmc/langchaingo/llms/ollama"
 )
 
-func GenerateEmebedding(splittedDocx string, s *models.Server) ([]float32, error) {
+type Embeddings struct{
+	Server 	*models.Server
+}
+
+
+func(s *Embeddings) GenerateEmebedding(splittedDocx string) ([]float32, error) {
 	// create the ollama client
 	llm, err := ollama.New(
-		ollama.WithModel(s.Config.OllamaEmbeddingModel),
+		ollama.WithModel(s.Server.Config.OllamaEmbeddingModel),
 	)
 
 	if err != nil{

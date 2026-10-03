@@ -4,14 +4,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	dbqueries "github.com/MilanBist/AI-Powered-Book-Answerer/db/dbQueries"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
-	askllm "github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/askLLm"
-	extractanswer "github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/extractAnswer"
 )
 
-func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
+type RawQuestionStore interface{
+	GetTop5Chats(userId int, bookId int) ([]models.Messages, error)
+	AddConversation(userQuery, response string, userId, bookId int) (int, error)
+}
+
+type RawQuestionEmbeddings interface{
+	GenerateEmebedding(splittedDocx string) ([]float32, error)
+	FindBestEmbeddings(point []float32, bookName string) ([]string, error)
+}
+
+type QuestionResponse interface{
+	AskLLM(docx []string, preChats []models.Messages, query string, language string, w http.ResponseWriter, r *http.Request, userId int, bookId int) (string, error)
+}
+
+type QuestionHanlder struct{
+	StoreQuestion 	RawQuestionStore
+	AnswerQuestion 	RawQuestionEmbeddings
+	Response 		QuestionResponse
+}
+
+func(h *QuestionHanlder) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 	// get user data and decode it
 	var userQuery *models.Question
 	json.NewDecoder(r.Body).Decode(&userQuery)
@@ -27,7 +43,7 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 
 
 	// using bge-m3 is multilingual embedding generator so mostly same embedding is generated for the same thing in different language
-	ans, err := extractanswer.GenerateEmebedding(userQuery.Query, h.server)
+	ans, err := h.AnswerQuestion.GenerateEmebedding(userQuery.Query)
 	if err != nil{
 		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
 		w.Header().Set("Content-Type", "application/json")
@@ -40,8 +56,7 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	fmt.Println("Book name being used is: ", userQuery.BookName)
-	requiredDocx, err := extractanswer.FindBestEmbeddings(h.server.Store, ans, userQuery.BookName)
+	requiredDocx, err := h.AnswerQuestion.FindBestEmbeddings(ans, userQuery.BookName)
 	if err != nil{
 		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
 		w.Header().Set("Content-Type", "application/json")
@@ -57,7 +72,7 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 	// get the userId based on the context
 	userId := r.Context().Value("userId").(int)
 	// get top 10 previous chats on the basis of the given bookId and userId
-	err, top5Chats := dbqueries.GetTop5Chats(userId, userQuery.BookId, h.server.PostgresDB)
+	top5Chats, err := h.StoreQuestion.GetTop5Chats(userId, userQuery.BookId)
 
 	if err != nil{
 		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
@@ -74,7 +89,7 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 
 	fmt.Println("[HANDLE RAW QUESTION] Book Id: ", userQuery.BookId)
 	// generate answers based on the given docx
-	err = askllm.AskLLM(requiredDocx,top5Chats, userQuery.Query, h.server, userQuery.Language, w, r, userId, userQuery.BookId,  h.server.PostgresDB)
+	newResponse, err := h.Response.AskLLM(requiredDocx,top5Chats, userQuery.Query, userQuery.Language, w, r, userId, userQuery.BookId)
 	if err != nil{
 		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
 		w.Header().Set("Content-Type", "application/json")
@@ -86,4 +101,18 @@ func(h *Handler) HandleRawQuestion(w http.ResponseWriter, r *http.Request){
 		json.NewEncoder(w).Encode(&response)
 		return
 	}
+
+	_, err = h.StoreQuestion.AddConversation(userQuery.Query, newResponse, userId, userQuery.BookId)
+	if err != nil{
+		fmt.Println("[HANDLE RAW QUESTION] Error: ", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		response := models.APIResponse{
+			Success: false,
+			Message: err.Error(),
+		}
+		json.NewEncoder(w).Encode(&response)
+		return
+	}
+
 }

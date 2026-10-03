@@ -3,19 +3,32 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"log"
+	"mime/multipart"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
-
-	dbqueries "github.com/MilanBist/AI-Powered-Book-Answerer/db/dbQueries"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
-	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/pipeline/extractpdf"
 )
 
-func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
+type StoreFileToLocation interface{
+	StoreFile(fileName string, file multipart.File)(string, error)
+}
+
+type StoreRawFile interface{
+	AddBookIdentity(bookTitle string, userId int) (int, int, error)
+}
+
+type Extract interface{
+	ExtractData(file *multipart.File, filePath string) (int, error)
+}
+
+type RawPdfHandler struct{
+	GetFileLocation 	StoreFileToLocation
+	StoreBook 			StoreRawFile
+	ExtractPdf 			Extract
+}
+
+func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	// handle raw pdf files
 	file,header, err := r.FormFile("document")
 	if err != nil{
@@ -27,41 +40,14 @@ func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	// get the file name
 	fileName := header.Filename
 
-	fmt.Println("[PDF HANDLER]: BookName: ",fileName)
-
 	// check if the extension is pdf or not
 	if strings.ToLower(filepath.Ext(fileName)) != ".pdf" {
 		http.Error(w, "Only PDF files are allowed", http.StatusBadRequest)
 		return
 	}
 
-	// save the file to the location of certain place by saying it documents
-	folderPath := "./uploadedFiles"
-	entries, err := os.ReadDir(folderPath)
-	log.Println(entries)
-	info, err := os.Stat(folderPath)
-	if err != nil{
-		if info == nil{
-		err = os.Mkdir("./uploadedFiles", 0755)
-		if err != nil{
-			fmt.Println("[PDF HANDLER] Error in creating folder: ", err)
-			}
-		}
-	}
-	// create the file
-	fullPath := folderPath + "/" + fileName
-	copiedFile, err := os.Create(fullPath)
-	if err != nil{
-		http.Error(w, "Error in creating the filepath", http.StatusInternalServerError)
-		return
-	}
 
-	// make a copy of the file inside the given folder made above
-	_, err = io.Copy(copiedFile, file)
-	if err != nil{
-		http.Error(w, "Error in copying the file", http.StatusInternalServerError)
-		return
-	}
+	fullPath, err := h.GetFileLocation.StoreFile(fileName, file)
 
 	// send this file to the pipeline ->
 	// i. Extract the text from the pdf
@@ -69,7 +55,7 @@ func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	// iii. Split this string
 	// iv. Create embeddings and store in vector db
 
-	status, err := extractpdf.ExtractData(&file, fullPath, h.server)
+	status, err := h.ExtractPdf.ExtractData(&file, fullPath)
 	fmt.Println("Error: ", err)
 	if err != nil{
 		fmt.Println("[PDF HANDLER]: Error in extracting the pdf.")
@@ -97,7 +83,7 @@ func(h *Handler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 
 	userId := r.Context().Value("userId").(int)
 	// add to the database
-	status, bookId, err := dbqueries.AddBookIdentity(fileName, userId, h.server.PostgresDB)
+	status, bookId, err := h.StoreBook.AddBookIdentity(fileName, userId)
 	if err != nil{
 		fmt.Println("[PDF HANDLER]: Error in adding the book to db.")
 		w.Header().Set("Content-Type", "application/json")

@@ -3,16 +3,14 @@ package dbqueries
 import (
 	"context"
 	"fmt"
-
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func GetAllBooksBasedOnUserId(userId int, db *pgxpool.Pool) ([]models.BookData, error){
+func(p *PostgresStore) GetAllBooksBasedOnUserId(userId int) ([]models.BookData, error){
 	// get the books based on the id of the user
 	query := `SELECT "id", "bookName" FROM "books" WHERE "user_id" = $1 ORDER BY "uploadedDate" DESC`
 
-	rows, err := db.Query(context.Background(), query, userId)
+	rows, err := p.Db.Query(context.Background(), query, userId)
 
 	if err != nil{
 		// just return the error

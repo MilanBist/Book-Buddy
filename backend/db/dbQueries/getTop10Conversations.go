@@ -4,18 +4,17 @@ import (
 	"context"
 	"fmt"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func GetTop5Chats(userId, bookId int, db *pgxpool.Pool)(error, []models.Messages){
+func(p *PostgresStore) GetTop5Chats(userId, bookId int)([]models.Messages, error){
 	query := `SELECT "userQuestion", "chatResponse" FROM "conversation" WHERE
 				"userId" = $1 AND "bookId" = $2
 				ORDER BY "conversationTime" LIMIT 5;
 			`
-	rows, err := db.Query(context.Background(), query, userId, bookId)
+	rows, err := p.Db.Query(context.Background(), query, userId, bookId)
 	if err != nil{
 		fmt.Println("[DATABASE QUERY ERROR]: Error in inserting.")
-		return err, nil
+		return nil,err
 	}
 
 	defer rows.Close()
@@ -28,26 +27,24 @@ func GetTop5Chats(userId, bookId int, db *pgxpool.Pool)(error, []models.Messages
 		err := rows.Scan(&conv.UserQuestion, &conv.LLMResponse)
 		if err != nil{
 			fmt.Println("[DATABASE QUERY ERROR]: Error in reading the data.", err)
-			return err, nil
+			return nil, err
 		}
 
 		conversation = append(conversation, conv)
 	}
-
-	return  nil, conversation
-
+	return  conversation, nil
 }
 
 
-func GetAllChats(userId, bookId int, db *pgxpool.Pool)(error, []models.ReturningConversation){
+func(p *PostgresStore) GetAllChats(userId, bookId int)([]models.ReturningConversation, error){
 	query := `SELECT "userQuestion", "chatResponse" FROM "conversation" WHERE
 				"userId" = $1 AND "bookId" = $2
 				ORDER BY "conversationTime" ASC;
 			`
-	rows, err := db.Query(context.Background(), query, userId, bookId)
+	rows, err := p.Db.Query(context.Background(), query, userId, bookId)
 	if err != nil{
 		fmt.Println("[DATABASE QUERY ERROR]: Error in inserting.")
-		return err, nil
+		return nil, err
 	}
 
 	defer rows.Close()
@@ -64,11 +61,11 @@ func GetAllChats(userId, bookId int, db *pgxpool.Pool)(error, []models.Returning
 		err := rows.Scan(&user.Message, &chat.Message)
 		if err != nil{
 			fmt.Println("[DATABASE QUERY ERROR]: Error in reading the data.", err)
-			return err, nil
+			return nil, err
 		}
 
 		conversation = append(conversation, user)
 		conversation = append(conversation, chat)
 	}
-	return  nil, conversation
+	return  conversation, nil
 }

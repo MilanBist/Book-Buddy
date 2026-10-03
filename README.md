@@ -73,10 +73,18 @@ The backend loads `.env` from its working directory, so run backend commands fro
 
 ## 🗄️ Database Setup
 
-Create the configured PostgreSQL database, then apply the initial migration:
+Create `backend/.env` from `backend/.env.example` and set `DB_PASSWORD`. Start PostgreSQL from the backend directory:
 
 ```bash
 cd backend
+docker compose up -d postgres
+```
+
+The Compose service publishes PostgreSQL on `DB_PORT` (5432 by default) and keeps its data in a named Docker volume. This matches `DB_HOST=localhost` for a backend running on your host. To stop PostgreSQL without removing its data, run `docker compose down`.
+
+Once PostgreSQL is healthy, apply the initial migration:
+
+```bash
 migrate -path ./db/migrations \
 	-database "postgres://postgres:<your-password>@localhost:5432/ragdb?sslmode=disable" \
 	up

@@ -1,28 +1,65 @@
 package api
 
+
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/controllers"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/utils"
 )
 
+type RegisterStore interface{
+	UserExistence(email string) (bool)
+	RegisterUser(registerCredentials models.Register)(int, error)
+}
 
-func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request){
+type TokenGenerator interface{
+	GenerateTokens(userId int64, email string) (string, error)
+}
+type RegisterHandler struct{
+	Register 	RegisterStore
+	Token 		TokenGenerator
+}
+
+func (h *RegisterHandler) HandleRegister(w http.ResponseWriter, r *http.Request){
 	var registerCredentials models.Register
 	json.NewDecoder(r.Body).Decode(&registerCredentials)
 	fmt.Println(registerCredentials)
 
-	// send all of the data to check and do things with the login 
-	statuCode, userId, err := controllers.Register(registerCredentials, h.server.PostgresDB)
+	isValid, msg := utils.ValidateUserRegister(registerCredentials)
+
+	if isValid != true{
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		response := models.APIResponse{
+			Success: false,
+			Message: msg,
+		}
+		json.NewEncoder(w).Encode(&response)
+		return
+	}
+	// check if the email person exist or not
+	userExist := h.Register.UserExistence(registerCredentials.Email)
+	if userExist == true{
+		// user exist so register can be done
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(404)
+		response := models.APIResponse{
+			Success: false,
+			Message: "User already exists.",
+		}
+		json.NewEncoder(w).Encode(&response)
+		return
+	}
+
+	// add the user to the table in the db
+	userId, err := h.Register.RegisterUser(registerCredentials)
 
 
 	if err != nil{
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(statuCode)
+		w.WriteHeader(http.StatusInternalServerError)
 		response := models.APIResponse{
 			Success: false,
 			Message: err.Error(),
@@ -32,7 +69,7 @@ func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request){
 	}
 
 	// if the isRegistered is true then do a thing like send with the jwt token in it
-	tokenString, err := utils.GenerateTokens(int64(userId), registerCredentials.Email)
+	tokenString, err := h.Token.GenerateTokens(int64(userId), registerCredentials.Email)
 	
 	if err != nil{
 		fmt.Println("[REGISTER ENDPOINT]: Error in generating the token.")
@@ -46,10 +83,6 @@ func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-
-
-
-	// return the true messaage to the frontend with the token string
 	response := models.APIResponse{
 		Success: true,
 		Message: "Registered Successfully.",

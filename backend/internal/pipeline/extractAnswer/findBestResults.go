@@ -11,9 +11,8 @@ func uint64Ptr(v uint64) *uint64 {
     return &v
 }
 
-
-func FindBestEmbeddings(client *qdrant.Client, point []float32, bookName string)([]string, error){
-	searchResult, err := client.Query(context.Background(), &qdrant.QueryPoints{
+func(s *Embeddings) FindBestEmbeddings(point []float32, bookName string) ([]string, error){
+	searchResult, err := s.Server.Store.Query(context.Background(), &qdrant.QueryPoints{
 		CollectionName: "AI_Book_summarizer",
 		Query: qdrant.NewQuery(point...),
 		Limit: uint64Ptr(3),
@@ -43,7 +42,6 @@ func FindBestEmbeddings(client *qdrant.Client, point []float32, bookName string)
 				bestResults = append(bestResults, textValue.GetStringValue())
 			}
 	}
-
 	fmt.Println("Best results are: ", bestResults)
 	return bestResults, nil
 }

@@ -4,12 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	dbqueries "github.com/MilanBist/AI-Powered-Book-Answerer/db/dbQueries"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 )
 
-func(h *Handler) HandleGettingBooks(w http.ResponseWriter, r *http.Request){	
+type BookInformation interface{
+	GetAllBooksBasedOnUserId(userId int) ([]models.BookData, error)
+}
+type BookGettingHandler struct{
+	Book 	BookInformation
+}
+
+func(h *BookGettingHandler) HandleGettingBooks(w http.ResponseWriter, r *http.Request){	
 	// getting the userId
 	userId := r.Context().Value("userId").(int)
 
@@ -17,7 +22,7 @@ func(h *Handler) HandleGettingBooks(w http.ResponseWriter, r *http.Request){
 	var ResponseForBooks []models.BookData
 
 	// if error occured in fetching the data from the database
-	ResponseForBooks, err := dbqueries.GetAllBooksBasedOnUserId(userId, h.server.PostgresDB)
+	ResponseForBooks, err := h.Book.GetAllBooksBasedOnUserId(userId)
 	if err != nil{
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Println("[GETTING BOOKS HANDLER]: Error in inserting in db. Actual error: ", err)

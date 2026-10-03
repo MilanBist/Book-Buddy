@@ -6,11 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // iniitally just add the book title and later on also add the userId as well
-func AddConversation(userQuery, response string, userId, bookId int, db *pgxpool.Pool) (int, error){
+func(p *PostgresStore) AddConversation(userQuery, response string, userId, bookId int) (int, error){
 	// add all of this data to the conn pool
 	ctx := context.Background()
 
@@ -23,7 +22,7 @@ func AddConversation(userQuery, response string, userId, bookId int, db *pgxpool
 			 RETURNING "id"
 			 `
 
-	err := db.QueryRow(ctx, query, userQuery, response, userId, bookId).Scan(&id)
+	err := p.Db.QueryRow(ctx, query, userQuery, response, userId, bookId).Scan(&id)
 	if err != nil{
 		// show the user that there is error
 		fmt.Println("[DATABASE CONNECTION]: Error in querying")

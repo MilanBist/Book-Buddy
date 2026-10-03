@@ -8,8 +8,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+type PostgresStore struct{
+	Db *pgxpool.Pool
+}
+
 // iniitally just add the book title and later on also add the userId as well
-func AddBookIdentity(bookTitle string, userId int, db *pgxpool.Pool) (int,int, error){
+func(p *PostgresStore) AddBookIdentity(bookTitle string, userId int) (int,int, error){
 	// add all of this data to the conn pool
 	ctx := context.Background()
 
@@ -24,7 +28,7 @@ func AddBookIdentity(bookTitle string, userId int, db *pgxpool.Pool) (int,int, e
 			 RETURNING "id"
 			 `
 
-	err := db.QueryRow(ctx, query, bookTitle, userId).Scan(&id)
+	err := p.Db.QueryRow(ctx, query, bookTitle, userId).Scan(&id)
 	if err != nil{
 		// show the user that there is error
 		fmt.Println("[DATABASE CONNECTION]: Error in querying")

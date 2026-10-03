@@ -11,6 +11,10 @@ import (
 	"github.com/tmc/langchaingo/textsplitter"
 )
 
+type DataExtract struct{
+	Server *models.Server
+}
+
 func splitDocument(document string)([]string, error){
 	splitter := textsplitter.NewRecursiveCharacter(
 		textsplitter.WithChunkSize(1000),
@@ -24,8 +28,7 @@ func splitDocument(document string)([]string, error){
 	return chunks, nil
 }
 
-func ExtractData(file *multipart.File, filePath string, s *models.Server) (int, error) {
-
+func(e *DataExtract)  ExtractData(file *multipart.File, filePath string) (int, error) {
 	// initialize the fitz document
 	document, err := fitz.New(filePath)
 	if err != nil{
@@ -53,12 +56,6 @@ func ExtractData(file *multipart.File, filePath string, s *models.Server) (int, 
 	result = strings.Trim(result, "\t")
 
 
-	// convert whole of the result in string remove unnecessay numbers and other things
-	// response, err := askllm.ConvertToEnglish(result, s)
-	// if err != nil{
-	// 	log.Println("[EXTRACT DATA]: Error in generating the response of the docx.")
-	// 	return http.StatusInternalServerError, err
-	// }
 
 	// convert them to splitted text and create embeddings of them
 	splittedDocx, err  := splitDocument(data.String())
@@ -68,7 +65,7 @@ func ExtractData(file *multipart.File, filePath string, s *models.Server) (int, 
 	}
 
 	// create embeddings and store it in the vector store
-	err = VectorStore(splittedDocx, s, filePath)
+	err = VectorStore(splittedDocx, e.Server, filePath)
 	if err != nil{
 		return http.StatusInternalServerError, err
 	}
