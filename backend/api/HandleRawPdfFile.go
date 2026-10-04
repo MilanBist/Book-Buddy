@@ -56,7 +56,6 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	// iv. Create embeddings and store in vector db
 
 	status, err := h.ExtractPdf.ExtractData(&file, fullPath)
-	fmt.Println("Error: ", err)
 	if err != nil{
 		fmt.Println("[PDF HANDLER]: Error in extracting the pdf.")
 		w.Header().Set("Content-Type", "application/json")
@@ -78,8 +77,6 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	// get the file name
 	newFilePath := strings.Split(fileName, ".")
 	fileName = newFilePath[0]
-
-	fmt.Println("[HANDLE RAW PDF FILE] File name is: ", fileName)
 
 	userId := r.Context().Value("userId").(int)
 	// add to the database
