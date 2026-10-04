@@ -27,9 +27,7 @@ func(s *Embeddings) FindBestEmbeddings(point []float32, bookName string) ([]stri
 		fmt.Println(err)
 		return nil, errors.New("No table")
 	}
-
 	var bestResults []string
-
 	// get first 5 emebeddings and if the rating of the emebedding is greater than 0.9 append them
 	for _, value := range searchResult {
 			if textValue, ok := value.Payload["text"]; ok {

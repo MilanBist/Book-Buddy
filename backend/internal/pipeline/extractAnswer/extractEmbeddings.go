@@ -19,7 +19,7 @@ func(s *Embeddings) GenerateEmebedding(splittedDocx string) ([]float32, error) {
 	)
 
 	if err != nil{
-		return nil, errors.New("Error in splitting the docx.")
+		return nil, errors.New("Error in connecting to ollama server.")
 	}
 
 	newString := []string{splittedDocx}

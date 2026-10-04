@@ -6,6 +6,7 @@ import (
 	"io"
 	"mime/multipart"
 	"os"
+	"path/filepath"
 )
 
 type StoreDataToLocation struct{
@@ -25,7 +26,7 @@ func(s *StoreDataToLocation) StoreFile(fileName string, file multipart.File)(str
 		}
 	}
 	// create the file
-	fullPath := s.BasePath + "/" + fileName
+	fullPath := filepath.Join(s.BasePath, fileName)
 	copiedFile, err := os.Create(fullPath)
 	if err != nil{
 		fmt.Println("[storeFile] Error: ", err)
