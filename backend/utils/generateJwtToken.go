@@ -1,28 +1,18 @@
 package utils
 
 import (
-	"fmt"
-	"os"
 	"strconv"
 	"time"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
 )
 
 type Token struct{
-	AccessToken 	string
+	SecretKey 	[]byte
 }
 
 func(t *Token) GenerateTokens(userId int64, email string) (string, error) {
 	// role might be like user and admin
 
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println(err)
-		return "", err
-	}
-
-	secretKey := []byte(os.Getenv("SECRET_KEY"))
 
 	// define the claims
 	claims := jwt.MapClaims{
@@ -37,10 +27,10 @@ func(t *Token) GenerateTokens(userId int64, email string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// create the string with the secret key
-	t.AccessToken, err = token.SignedString(secretKey)
+	accessToken, err := token.SignedString(t.SecretKey)
 
 	if err != nil {
 		return "", err
 	}
-	return t.AccessToken, nil
+	return accessToken, nil
 }

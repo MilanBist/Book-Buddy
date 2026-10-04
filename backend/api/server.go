@@ -1,7 +1,9 @@
 package api
 
 import (
+	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/MilanBist/AI-Powered-Book-Answerer/config"
@@ -17,6 +19,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 	"github.com/qdrant/go-client/qdrant"
 )
 
@@ -58,11 +61,15 @@ func NewServer(vectorStore *qdrant.Client, cfg *config.Config, postgres *pgxpool
 func(h *Handler) setupRoutes(){
 	// initally test with ping pong statement
 	// create handlers for each of the endpoints
+	err := godotenv.Load()
+	if err != nil{
+		log.Fatal("Error in loading environment file.")
+	}
 	store := &dbqueries.PostgresStore{
 		Db: h.server.PostgresDB,
 	}
 	token := &utils.Token{
-		AccessToken: "",
+		SecretKey: []byte(os.Getenv("SECRET_KEY")),
 	}
 	embed := &extractanswer.Embeddings{
 		Server: h.server,

@@ -3,12 +3,9 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
-
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
 )
 
 
@@ -35,22 +32,12 @@ func validateJwt(token string, key []byte)(*jwt.Token, error){
 	return jwtToken, nil
 }
 
-func ValidateToken(token string) (int,error){
+func(t *Token) ValidateToken(token string) (int,error){
 	// validate the token obtained
 
-	// get the secret key
-	err := godotenv.Load()
-	if err != nil{
-		// show the error
-		fmt.Println("[VALIDATING ERROR]: Error in loading the env file")
-		return -1, err
-	}
-
-	// Now get the secret key
-	secretKey := []byte(os.Getenv("SECRET_KEY"))
 
 	// now validate the jwt token and get the claims
-	jwtToken, err := validateJwt(token, secretKey)
+	jwtToken, err := validateJwt(token, t.SecretKey)
 	if err != nil{
 		return -1, err
 	}

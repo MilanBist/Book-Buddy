@@ -73,7 +73,7 @@ func ValidateUserRegister(credentials models.Register) (bool, string){
 
 
 	// if there is error in name
-	if !checkFirstName  &&  !checkLastName{
+	if !checkFirstName  ||  !checkLastName{
 		// error in the name
 		return false, "First and last name must be between 2-32"
 	}

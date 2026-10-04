@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/MilanBist/AI-Powered-Book-Answerer/utils"
 )
-
 
 func AuthMiddleware(next http.Handler) http.Handler{
 	// return the new handler
@@ -31,8 +31,13 @@ func AuthMiddleware(next http.Handler) http.Handler{
 		token := splitedToken[len(splitedToken)-1]
 		fmt.Println("[AUTH MIDDLEWARE]: Token", token)
 
+		// make a token object to call the method
+		t := utils.Token{
+			SecretKey: []byte(os.Getenv("SECRET_KEY")),
+		}
+
 		// now validate the token 
-		userId, err := utils.ValidateToken(token)
+		userId, err := t.ValidateToken(token)
 		fmt.Println("User id is: ", userId)
 		if err != nil{
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
