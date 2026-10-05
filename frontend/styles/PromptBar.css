@@ -1,0 +1,145 @@
+/* ---------- Layout: dropdown + prompt bar side by side, pinned to the bottom ---------- */
+.prompt-bar {
+  position: fixed;          /* if your Prompt bar container already positions itself, delete these 4 lines */
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  display: flex;
+  align-items: flex-end;    /* keeps both aligned on the bottom edge as the textarea grows */
+  gap: 12px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* ---------- Language dropdown ---------- */
+.select-wrapper {
+  flex: 0 0 auto;
+  height: 56px;             /* same as the prompt bar's single-line height */
+  display: flex;
+  align-items: center;
+}
+
+#choices {
+  height: 100%;
+  padding: 0 14px;
+  border: 1px solid #d0d0d0;
+  border-radius: 16px;
+  background: #fff;
+  color: #000;
+  font-size: 15px;
+  cursor: pointer;
+  outline: none;
+}
+
+#choices:focus {
+  border-color: #000;
+}
+
+/* ---------- Prompt bar ---------- */
+#searchBar-box {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;    /* arrow stays at the bottom while text grows */
+  gap: 10px;
+  min-height: 56px;
+  padding: 8px 8px 8px 18px;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  border-radius: 28px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+#searchBar-box:focus-within {
+  border-color: #000;
+}
+
+.search-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  align-self: center;
+  margin: 0;
+  padding: 8px 0;
+  border: none;
+  outline: none;
+  resize: none;
+  background: #fff;          /* white text bar */
+  color: #000;
+  font: inherit;
+  font-size: 16px;
+  line-height: 24px;
+
+  height: 40px;
+  max-height: 160px;
+  overflow-y: auto;          /* still scrolls after max-height */
+
+  /* hide the scrollbar but keep scrolling working */
+  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none;  /* old Edge/IE */
+}
+
+.search-label::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari, Edge */
+}
+
+.search-label::placeholder {
+  color: #7a7a7a;
+}
+
+/* ---------- Send arrow ---------- */
+#arrowup {
+  flex: 0 0 auto;
+  width: 40px;              /* overrides the size={50} attribute */
+  height: 40px;
+  padding: 9px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+#arrowup:hover {
+  opacity: 0.8;
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 520px) {
+  .prompt-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .select-wrapper {
+    height: 44px;
+  }
+}
+
+#searchBar-box .search-label {
+  background: transparent !important;
+  color: #000 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: auto;
+  height: 40px;
+  max-height: 160px;
+  margin: 0;
+  padding: 8px 0;
+  line-height: 24px;
+  align-self: center;
+}
+
+#searchBar-box .search-label::placeholder {
+  color: #7a7a7a;
+}

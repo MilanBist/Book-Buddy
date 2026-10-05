@@ -1,9 +1,8 @@
-import '../styles/form.css'
 import { useState } from "react";
 import { data, Link } from 'react-router-dom';
 import apiClient from '../api/api';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import "../styles/Register.css";
 // check names valididty
 const checkName = (name)=>{
     if (name === "" || name.length <2 || name.length >30){
@@ -47,9 +46,8 @@ const checkPassword = (password)=>{
     return true;
 }
 
-export default function SignUpForm(){
+export default function SignUpForm({setLoggedInState}){
     const navigate = useNavigate();
-
 
     // make the states for all of the given things
     const [firstName, setFirstName] = useState("");
@@ -60,8 +58,6 @@ export default function SignUpForm(){
 
 
     // for the response
-    const [response, setResponse] = useState({});
-    const [error, setError] = useState("");
 
     // add the setter functions
     const UpdateFirstName = (evt)=>{
@@ -124,9 +120,6 @@ export default function SignUpForm(){
 
         console.log("Validation successfull.");
 
-        // now call the backend for storing all of the given data 
-        // to the database
-
         const formdata = {
             userFirstName: firstName,
             userLastName: lastName,
@@ -140,17 +133,44 @@ export default function SignUpForm(){
         // send this to the frontend using the axios
         apiClient.post("/register", formdata).then((resp) =>{
             // if the response status is 202
-            setResponse(resp);
-            console.log("Register response is: ", resp.data);
             localStorage.setItem("tokenId", resp["data"]["data"]["token"]);
             // navigate to the homepage now
-            navigate("/");
+            console.log("Successfully added new user.");
+            alert("Redirecting to home page.");
+            setTimeout(()=>{
+                console.log("Redirecting to home page.");
+                navigate("/");
+            },1000);
             
-        }).catch((err) =>{
-            console.log(err);
-            setError(err);
-        }).finally(()=>{
-            console.log("Successfully register response.");
+        }).catch((err) => {
+            console.log("Reaching to this part of error section.", err.response.data.message);
+            let statusCode = err.response.status;
+            let message = err.response.data.message;
+            console.log("Status code is: ", statusCode);
+            console.log("Message is: ", message);
+            switch(statusCode){
+                case 500:
+                    // check for the message
+                    switch(message){
+                        case "can't generate":
+                            console.log("Can't generate tokens.");
+                            alert("Server error.");
+                            return;
+                        case "can't insert":
+                            console.log("Can't insert to database.");
+                            alert("Server error.");
+                            return;
+                    }
+                case 401:
+                    let msg = err.response.data.data;
+                    alert(msg);
+                    return;
+                case 409:
+                    alert("User already exisit.\n Redirecting to login page.");
+                    setTimeout(()=>{
+                        navigate("/login");
+                    }, 1000);
+            }
         })
     }
 

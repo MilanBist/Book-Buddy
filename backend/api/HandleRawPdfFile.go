@@ -32,7 +32,15 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	// handle raw pdf files
 	file,header, err := r.FormFile("document")
 	if err != nil{
-		http.Error(w, "Error in receiving file", http.StatusBadRequest)
+		fmt.Println("[PDF HANDLER]: Error in obtaining the book.")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		// now add the error message
+		response := models.APIResponse{
+			Success: false,
+			Message: "Can't obtain the pdf file.",
+		}
+		json.NewEncoder(w).Encode(&response)
 		return
 	}
 	defer file.Close()
@@ -42,7 +50,15 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 
 	// check if the extension is pdf or not
 	if strings.ToLower(filepath.Ext(fileName)) != ".pdf" {
-		http.Error(w, "Only PDF files are allowed", http.StatusBadRequest)
+		fmt.Println("[PDF HANDLER]: Only can extract the .pdf.")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		// now add the error message
+		response := models.APIResponse{
+			Success: false,
+			Message: "precise only .pdf is accepted.",
+		}
+		json.NewEncoder(w).Encode(&response)
 		return
 	}
 
@@ -55,15 +71,15 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	// iii. Split this string
 	// iv. Create embeddings and store in vector db
 
-	status, err := h.ExtractPdf.ExtractData(&file, fullPath)
+	_, err = h.ExtractPdf.ExtractData(&file, fullPath)
 	if err != nil{
 		fmt.Println("[PDF HANDLER]: Error in extracting the pdf.")
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(status)
+		w.WriteHeader(http.StatusInternalServerError)
 		// now add the error message
 		response := models.APIResponse{
 			Success: false,
-			Message: err.Error(),
+			Message: "Error in extracting the data.",
 		}
 		json.NewEncoder(w).Encode(&response)
 		return
@@ -80,11 +96,11 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 
 	userId := r.Context().Value("userId").(int)
 	// add to the database
-	status, bookId, err := h.StoreBook.AddBookIdentity(fileName, userId)
+	_, bookId, err := h.StoreBook.AddBookIdentity(fileName, userId)
 	if err != nil{
 		fmt.Println("[PDF HANDLER]: Error in adding the book to db.")
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(status)
+		w.WriteHeader(http.StatusInternalServerError)
 		// now add the error message
 		response := models.APIResponse{
 			Success: false,
@@ -95,7 +111,7 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	}
 	// if no nil just return extraction and saving compelted
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
+	w.WriteHeader(http.StatusOK)
 	// set the response
 	response := models.APIResponse{
 		Success: true,

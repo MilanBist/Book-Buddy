@@ -37,7 +37,12 @@ func(h *QuestionHanlder) HandleRawQuestion(w http.ResponseWriter, r *http.Reques
 
 	// if the user query is empty send user error as bad request
 	if userQuery.Query == ""{
-		http.Error(w, "Empty query", http.StatusBadRequest)
+		w.WriteHeader(http.StatusInternalServerError)
+		response := models.APIResponse{
+			Success: false,
+			Message: "No query.",
+		}
+		json.NewEncoder(w).Encode(&response)
 		return
 	}
 
@@ -114,5 +119,4 @@ func(h *QuestionHanlder) HandleRawQuestion(w http.ResponseWriter, r *http.Reques
 		json.NewEncoder(w).Encode(&response)
 		return
 	}
-
 }

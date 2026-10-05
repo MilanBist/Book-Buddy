@@ -1,24 +1,19 @@
-import '../styles/button.css'
 import { Link } from 'react-router-dom';
+import "../styles/NavBar.css"
 
-export default function NavBar({fileUploadStatusChanger, status} ){
-    const styles = {
-        width: "80%",
-        padding: "20px",
-    };
-
+export default function NavBar({uploadBar, setUploadBar} ){
     const handleUploadClick = ()=>{
-        if (status == true){
-            fileUploadStatusChanger(false)
+        if (uploadBar == true){
+            setUploadBar(false);
             return
         } else{
-            fileUploadStatusChanger(true)
+            setUploadBar(true);
         }
     }
     return(
-        <div style={styles} id="navBar-display">
-            <button class="button" id="navBarButton-upload" onClick={handleUploadClick}>FileUpload</button>
-            <Link to='/login'><button class="button"  id="navBarButton-loginsign">Login/Signup</button></Link>
+        <div id="navBar-display">
+            <button className="button" id="navBarButton-upload" onClick={handleUploadClick}>FileUpload</button>
+            <Link to='/login'><button className="button"  id="navBarButton-loginsign">Login/Signup</button></Link>
         </div>
     )
 }

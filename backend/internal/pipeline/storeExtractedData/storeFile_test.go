@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"testing"
 )
-
 func TestStoreFile(t *testing.T) {
 	basePath := filepath.Join(t.TempDir(), "uploadedFiles")
 	err := os.MkdirAll(basePath, 0755)
@@ -29,8 +28,7 @@ func TestStoreFile(t *testing.T) {
 	if err != nil {
 		t.Fatal("Error from second part: ",err)
 	}
-	writer.Close()
-
+	writer.Close()				
 
 	// convert to multipart.filee
 	reader := multipart.NewReader(&body, writer.Boundary())
@@ -39,8 +37,8 @@ func TestStoreFile(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fileHeader := form.File["file"][0]   // *multipart.FileHeader
-	file, err := fileHeader.Open()       // multipart.File
+	fileHeader := form.File["file"][0]   
+	file, err := fileHeader.Open()      
 	if err != nil {
 		t.Fatal(err)
 	}

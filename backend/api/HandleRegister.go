@@ -30,10 +30,11 @@ func (h *RegisterHandler) HandleRegister(w http.ResponseWriter, r *http.Request)
 
 	if isValid != true{
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(401)
 		response := models.APIResponse{
 			Success: false,
-			Message: msg,
+			Message: "wrong credentials.",
+			Data: msg,
 		}
 		json.NewEncoder(w).Encode(&response)
 		return
@@ -43,7 +44,7 @@ func (h *RegisterHandler) HandleRegister(w http.ResponseWriter, r *http.Request)
 	if userExist == true{
 		// user exist so register can be done
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(404)
+		w.WriteHeader(409)
 		response := models.APIResponse{
 			Success: false,
 			Message: "User already exists.",
@@ -54,14 +55,12 @@ func (h *RegisterHandler) HandleRegister(w http.ResponseWriter, r *http.Request)
 
 	// add the user to the table in the db
 	userId, err := h.Register.RegisterUser(registerCredentials)
-
-
 	if err != nil{
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		response := models.APIResponse{
 			Success: false,
-			Message: err.Error(),
+			Message: "can't insert.",
 		}
 		json.NewEncoder(w).Encode(&response)
 		return
@@ -69,14 +68,13 @@ func (h *RegisterHandler) HandleRegister(w http.ResponseWriter, r *http.Request)
 
 	// if the isRegistered is true then do a thing like send with the jwt token in it
 	tokenString, err := h.Token.GenerateTokens(int64(userId), registerCredentials.Email)
-	
 	if err != nil{
 		fmt.Println("[REGISTER ENDPOINT]: Error in generating the token.")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		response := models.APIResponse{
 			Success: false,
-			Message: err.Error(),
+			Message: "can't generate",
 		}
 		json.NewEncoder(w).Encode(&response)
 		return

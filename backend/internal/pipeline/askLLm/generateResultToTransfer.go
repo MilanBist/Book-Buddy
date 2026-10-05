@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
+
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/ollama"
@@ -48,6 +50,7 @@ func GenerateResultAndSendToFrontend(query, prompt string, h *models.Server, w h
 		}))
 
 	if err != nil{
+		fmt.Println(err)
 		return "",errors.New("Error in completing the response.")
 	}
 

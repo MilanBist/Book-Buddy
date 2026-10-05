@@ -1,0 +1,57 @@
+#navBar-display {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 24px;
+}
+
+
+/* Common button style */
+#navBar-display .button {
+  border: none;
+  background: transparent;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+
+  cursor: pointer;
+
+  padding: 8px 14px;
+  border-radius: 8px;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+
+/* File upload button */
+#navBarButton-upload {
+  color: #444;
+}
+
+#navBarButton-upload:hover {
+  background-color: #f1f1f1;
+}
+
+
+/* Login / Signup */
+#navBarButton-loginsign {
+  color: #333;
+  background-color: #f1f1f1 !important;
+}
+
+#navBarButton-loginsign:hover {
+  background-color: #e5e5e5 !important;
+}
+
+
+/* Remove default link styling */
+#navBar-display a {
+  text-decoration: none;
+}

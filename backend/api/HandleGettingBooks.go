@@ -34,7 +34,7 @@ func(h *BookGettingHandler) HandleGettingBooks(w http.ResponseWriter, r *http.Re
 	}
 
 	fmt.Println("[GETTING BOOKS HANDLER]: Success in fetching the data.", err)
-	w.WriteHeader(http.StatusAccepted)
+	w.WriteHeader(http.StatusOK)
 	response := models.APIResponse{
 		Success: true,
 		Message: "Data successfully fetched.",

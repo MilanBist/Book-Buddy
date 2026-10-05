@@ -25,25 +25,36 @@ func (h *LoginHandler) HandleLogin(w http.ResponseWriter, r *http.Request){
 	json.NewDecoder(r.Body).Decode(&loginCredentials)
 	isValid, errMsg := utils.ValidateUserLogin(&loginCredentials)
 	if !isValid{
-		fmt.Println(errMsg)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(401)
+		response := models.APIResponse{
+			Success: false,
+			Message:"wrong credentials",
+			Data: errMsg,
+		}		
+		json.NewEncoder(w).Encode(&response)
+		return
 	}
 
 
+	fmt.Println(loginCredentials)
 	// check for the user and get the id
 	userId, err := h.Check.CheckUser(loginCredentials)
 	if err != nil{
 		// just return the error
 		// get in certain format for sending to the frontend
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(404)
+		w.WriteHeader(401)
 		response := models.APIResponse{
 			Success: false,
-			Message: err.Error(),
+			Message:"no user",
 		}
+		fmt.Println("Response might be: ", response)
 		json.NewEncoder(w).Encode(&response)
 		return
 	}
 
+	fmt.Println("Reaching here.");
 	// if the isRegistered is true then do a thing like send with the jwt token in it
 	tokenString, err := h.Token.GenerateTokens(int64(userId), loginCredentials.Email)
 	if err != nil{
@@ -66,7 +77,6 @@ func (h *LoginHandler) HandleLogin(w http.ResponseWriter, r *http.Request){
 			Token: tokenString,
 		},
 	}
-
 
 	fmt.Println("[LOGIN HANDLER] Reponse data: ", response)
 	json.NewEncoder(w).Encode(&response)

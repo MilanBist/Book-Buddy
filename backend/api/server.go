@@ -128,6 +128,7 @@ func(h *Handler) setupRoutes(){
 
 			// create the protected handlers
 			r.Group(func(r chi.Router){
+				
 				// add the middlewares here
 				r.Use(middlewares.LoggingMiddleware)
 				r.Use(middlewares.AuthMiddleware)

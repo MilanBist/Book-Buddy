@@ -1,11 +1,8 @@
-import axios from "axios";
 import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import apiClient from "../api/api";
 import { useNavigate } from "react-router-dom";
-
-
-
+import "../styles/Login.css";
 
 // check for the email
 const checkEmail = (email)=>{
@@ -32,16 +29,12 @@ const checkPassword = (password)=>{
     return true;
 }
 
-export default function LoginForm(){
+export default function LoginForm({setLoggedInState}){
     const navigate = useNavigate();
+
     // make the states for all of the given things
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
-    // for the response
-    const [response, setResponse] = useState({});
-    const [error, setError] = useState();
-
     const UpdatePassword = (evt)=>{
         setPassword(evt.target.value);
     }
@@ -82,26 +75,44 @@ export default function LoginForm(){
         userEmail: email,
         userPassword: password
     };
-''
-    // to be sent
-    console.log("The bodymap which is going to be sent:",bodyMap);
 
+    console.log(bodyMap);
 
     // if both are correct then call the handler for the login
     apiClient.post("/login",bodyMap).then((resp)=>{
-            setResponse(resp);
-            console.log("Login response is: ", resp.data);
-            // update the token value from the local storage
             localStorage.setItem("tokenId", resp.data["data"]["token"]);
             navigate("/");
         }).catch((err) => {
-            // check for the headers here
-            setError(err);
-            console.log("Login error: ", err);
+            console.log("Reaching to this part of error section.", err.response.data.message);
+            let statusCode = err.response.status;
+            let message = err.response.data.message;
+
+
+            console.log("Status code is: ", statusCode);
+            console.log("Message is: ", message);
+            switch(statusCode){
+                case 401:
+                    // check for the message
+                    switch(message){
+                        case "wrong credentials":
+                            let data = err.response.data.data;
+                            alert(data);
+                            return;
+                        case "no user":
+                            alert("User doesn't exist.\nSignup yourself.");
+                            setTimeout(()=>{
+                                navigate("/signup")
+                            }, 1500);
+                            return;
+                    }
+                case 500:
+                    alert("Internal server error. \n Try again later.");
+                    return;
+            }
         }).finally(()=>{
             console.log("Login credentials checked.");
         })
-    
+
     }
        return(
         <div id="form-body">
