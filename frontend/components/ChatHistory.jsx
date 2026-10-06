@@ -61,12 +61,12 @@ export default function ChatHistory({books, setBooks, currentBook, setCurrentBoo
         <>
         <div id="sideBar" >
             <h2>CHAT HISTORY</h2>
-            <div id="newChat">
+            {/* <div id="newChat">
                 <button className="button">New Chat</button>
             </div>
             <div id="searchChat">
                 <button className="button">Search Chat</button>
-            </div>
+            </div> */}
 
             <div id='sidebar-bottom'>
                 <div id="recents">

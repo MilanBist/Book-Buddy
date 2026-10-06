@@ -1,53 +1,316 @@
-# 📚 Chatoo
+# 📚✨ Book Buddy
 
-AI-Powered Book Answerer is a full-stack application for uploading PDF books and asking questions about their contents. The backend extracts text, creates embeddings, stores vectors in Qdrant, and uses Ollama models to retrieve and generate relevant answers — in whichever language the user prefers.
+### **Your book. Your language. Your conversation.**
 
-## ✨ Features
+> **What if your book could talk back?**
 
-- User registration and login with JWT authentication
-- PDF upload and text extraction
-- Embedding generation and vector search with Qdrant, scoped per book via payload filtering
-- **Multilingual Q&A** — ask a question in any language and receive the answer translated back into that or in other language you preferred, regardless of the language the source book is written in
-- AI-generated answers using Ollama -> qwen3:8b
-- Embeddings creation using Ollama model -> bge-m3
-- Book and conversation history
-- React web interface for authentication, uploads, and chat
+Book Buddy turns your PDF books into **interactive conversation partners**.
 
-## 🛠️ Technology Stack
+Upload a book, choose it from your library, and start asking questions. Book Buddy finds the most relevant parts of the book, understands the context, and uses a **local LLM** to generate an answer grounded in the book.
 
-- **Frontend:** React 19, Vite, React Router, Axios
-- **Backend:** Go, Chi HTTP router
-- **Relational database:** PostgreSQL
-- **Vector database:** Qdrant
-- **AI services:** Ollama
-- **Document processing:** `go-fitz`
+And because reading shouldn't have a language barrier, you can **ask questions in different languages and receive answers in your preferred language.**
 
-## 📂 Project Structure
+No sending your books to a third-party AI service.
+
+Everything runs locally using **Go + Qdrant + PostgreSQL + Ollama**.
+
+---
+
+## 🌟 What is Book Buddy?
+
+Reading a 500-page book and trying to find one specific piece of information can be painful.
+
+Book Buddy turns this:
+
+```text
+📖 Open book
+   ↓
+🔍 Search through hundreds of pages
+   ↓
+😵 Find the relevant section
+   ↓
+🧠 Understand the context
+```
+
+into this:
+
+```text
+📖 Upload your book
+       ↓
+💬 Ask a question
+       ↓
+🔎 Book Buddy finds the relevant passages
+       ↓
+🧠 Local LLM understands the context
+       ↓
+✨ Get an answer from your book
+```
+
+The goal isn't to replace reading.
+
+**It's to make reading more interactive.**
+
+---
+
+# 🚀 Features
+
+### 📚 Talk to your books
+
+Upload a PDF and ask questions about its content.
+
+Instead of manually searching through pages, simply ask:
+
+---
+
+### 🌍 Your language, your conversation
+
+Book Buddy supports multilingual question answering.
+
+You can ask questions in one language while the system retrieves information from the book and generates the response in your preferred language.
+
+**Your book doesn't need to speak only one language.**
+
+---
+
+### 🧠 Retrieval-Augmented Generation
+
+Book Buddy uses a RAG pipeline to ground answers in the uploaded book.
+
+Instead of simply asking an LLM:
+
+```text
+Question → LLM → Answer
+```
+
+the application does:
+
+```text
+Question
+   ↓
+Embedding
+   ↓
+Qdrant similarity search
+   ↓
+Relevant book passages
+   ↓
+LLM + retrieved context
+   ↓
+Grounded answer
+```
+
+This helps keep the conversation focused on the selected book.
+
+---
+
+### 🔐 User accounts
+
+Each user has their own books and conversations.
+
+Authentication is handled using **JWTs**, with protected API routes for book uploads, questions, and conversation history.
+
+---
+
+### 💬 Conversation history
+
+Book Buddy remembers previous conversations for each book.
+
+You can return to a book and continue exploring it instead of starting from zero every time.
+
+---
+
+### 🏠 Fully local AI
+
+The AI pipeline runs locally using **Ollama**.
+
+That means the application can use local models for:
+
+* Embeddings
+* Translation
+* Answer generation
+
+Your uploaded books don't need to be sent to a hosted AI API.
+
+---
+
+# 🛠️ Tech Stack
+
+| Layer              | Technology                          |
+| ------------------ | ----------------------------------- |
+| 🎨 Frontend        | React 19, Vite, React Router, Axios |
+| ⚙️ Backend         | Go, Chi                             |
+| 🗄️ Database       | PostgreSQL                          |
+| 🔎 Vector Database | Qdrant                              |
+| 🤖 AI              | Ollama                              |
+| 📄 PDF Processing  | go-fitz                             |
+| 🔐 Authentication  | JWT                                 |
+| 🐳 Infrastructure  | Docker                              |
+
+---
+
+# 🏗️ How Book Buddy Works
+
+Book Buddy has three main runtime pieces.
+
+```text
+                    ┌─────────────────────┐
+                    │      React UI       │
+                    │                     │
+                    │ Upload • Chat       │
+                    │ History • Auth      │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │      Go API         │
+                    │                     │
+                    │ Auth • Books • Chat │
+                    │ PDF • RAG Pipeline  │
+                    └──────┬───────┬──────┘
+                           │       │
+                ┌──────────┘       └──────────┐
+                ▼                             ▼
+        ┌──────────────┐              ┌──────────────┐
+        │ PostgreSQL   │              │    Qdrant    │
+        │              │              │              │
+        │ Users        │              │ Embeddings   │
+        │ Books        │              │ Book chunks  │
+        │ Conversations│              │ Similarity   │
+        └──────────────┘              └──────┬───────┘
+                                             │
+                                             ▼
+                                      ┌──────────────┐
+                                      │    Ollama    │
+                                      │              │
+                                      │ Embeddings   │
+                                      │ Translation  │
+                                      │ LLM          │
+                                      └──────────────┘
+```
+
+---
+
+# 🔄 The Book Journey
+
+When you upload a book, Book Buddy takes it through a small journey.
+
+### 1. 📤 Upload
+
+The user uploads a PDF through the React frontend.
+
+### 2. 📄 Extract
+
+The Go backend extracts the text from the PDF using `go-fitz`.
+
+### 3. ✂️ Chunk
+
+The extracted text is split into smaller chunks that can be searched efficiently.
+
+### 4. 🧠 Embed
+
+Each chunk is converted into a vector embedding using the configured Ollama embedding model.
+
+### 5. 🔎 Store
+
+The embeddings are stored in Qdrant together with metadata such as:
+
+```text
+bookName
+chunkId
+```
+
+This allows Book Buddy to search inside the correct book.
+
+### 6. 💬 Ask
+
+The user asks a question.
+
+### 7. 🔍 Retrieve
+
+The question is embedded and sent to Qdrant.
+
+Qdrant finds the most relevant chunks from the selected book.
+
+### 8. 🤖 Answer
+
+The retrieved context is passed to the local LLM.
+
+The model generates the final answer using the retrieved book content.
+
+### 9. 🌍 Translate
+
+If necessary, the answer can be translated back into the user's preferred language.
+
+---
+
+# 🧩 Repository Structure
 
 ```text
 .
-├── backend/       Go API, database code, authentication, and AI pipeline
-├── frontend/      React/Vite client
-├── qdrant_storage/ Local Qdrant data
-└── README.md
+├── backend/
+│   ├── api/                   # HTTP handlers for auth, upload, books, chat
+│   ├── config/                # Environment configuration
+│   ├── db/                    # PostgreSQL connection and migration support
+│   ├── db/migrations/         # Database schema migrations
+│   ├── internal/
+│   │   ├── middlewares/       # Authentication and logging middleware
+│   │   ├── models/            # Shared request/response models
+│   │   └── pipeline/          # PDF, embeddings, Qdrant and LLM pipeline
+│   ├── uploadedFiles/         # Uploaded PDF files
+│   ├── .env                   # Local environment settings
+│   ├── .env.example           # Example environment configuration
+│   ├── docker-compose.yml     # PostgreSQL Docker configuration
+│   ├── go.mod
+│   ├── go.sum
+│   ├── main.go                # Backend entrypoint
+│   └── ...
+│
+├── frontend/
+│   ├── api/                   # API client configuration
+│   ├── components/            # Upload, chat, history, navbar, etc.
+│   ├── pages/                 # Login, signup, home
+│   ├── src/                   # Application entrypoint and styles
+│   ├── styles/                # CSS
+│   ├── package.json
+│   └── ...
+│
+├── qdrant_storage/            # Local Qdrant storage
+├── README.md
+└── .gitignore
 ```
 
-## ✅ Prerequisites
+---
 
-Install and run the following before starting the application:
+# ⚡ Getting Started
 
-- Go `1.26.3` or a compatible newer version
-- Node.js and npm
-- PostgreSQL
-- Qdrant
-- Ollama with the required models downloaded
-- A migration tool such as `golang-migrate`
+Want to talk to your first book?
 
-The backend expects PostgreSQL and Qdrant to be available locally. Ollama must be running at the endpoint configured in `backend/.env`.
+You'll need:
 
-## ⚙️ Configuration
+* Go 1.22+
+* Node.js + npm
+* Docker
+* PostgreSQL
+* Qdrant
+* Ollama
 
-Create `backend/.env` using the following structure. Replace placeholder values with your local configuration and never commit credentials.
+---
+
+# 1. Clone the repository
+
+```bash
+git clone https://github.com/MilanBist/Book-Buddy.git
+cd Book-Buddy
+```
+
+# 🔧 1. Configure the Environment
+
+Create the environment file:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+Then configure your local environment.
 
 ```dotenv
 PORT=8080
@@ -61,66 +324,113 @@ OLLAMA_TRANSLATION_MODEL=qwen3:8b
 QDRANT_PORT=6334
 
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=5433
 DB_USER=postgres
-DB_PASSWORD=<your-password>
+DB_PASSWORD=ragdb123
 DB_NAME=ragdb
+
+SECRET_KEY=replace_with_a_strong_secret
 ```
 
-The backend loads `.env` from its working directory, so run backend commands from `backend/`.
+### A couple of important notes
 
-> **Note on models:** `bge-m3` is a multilingual embedding model, so book content and user questions can be embedded consistently regardless of language. `OLLAMA_TRANSLATION_MODEL` (`qwen3:8b`) handles translating the retrieved answer into the language the question was asked in, which is what powers the multilingual Q&A feature described below.
+`DB_PORT` is `5433` because Docker exposes PostgreSQL's internal port `5432` on host port `5433`.
 
-## 🗄️ Database Setup
+Qdrant uses:
 
-Create `backend/.env` from `backend/.env.example` and set `DB_PASSWORD`. Start PostgreSQL from the backend directory:
+```text
+6333 → REST
+6334 → gRPC
+```
+
+The Go backend uses the Qdrant gRPC port.
+
+---
+
+# 🐘 2. Start PostgreSQL
+
+From the backend directory:
 
 ```bash
 cd backend
 docker compose up -d postgres
 ```
 
-The Compose service publishes PostgreSQL on `DB_PORT` (5432 by default) and keeps its data in a named Docker volume. This matches `DB_HOST=localhost` for a backend running on your host. To stop PostgreSQL without removing its data, run `docker compose down`.
+Check that it is running:
 
-Once PostgreSQL is healthy, apply the initial migration:
+```bash
+docker compose ps
+```
+
+PostgreSQL should be available at:
+
+```text
+localhost:5433
+```
+
+---
+
+# 🗃️ 3. Run Database Migrations
+
+Book Buddy uses `golang-migrate`.
+
+If you don't have it installed:
+
+```bash
+go install -tags 'postgres' \
+github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+```
+
+Then run:
 
 ```bash
 migrate -path ./db/migrations \
-	-database "postgres://postgres:<your-password>@localhost:5432/ragdb?sslmode=disable" \
-	up
+  -database "postgres://postgres:ragdb123@localhost:5433/ragdb?sslmode=disable" \
+  up
 ```
 
-Start Qdrant and Ollama using your local installation. Pull the models listed in `.env` if they are not already available.
+---
 
-## 🧭 Setting Up Qdrant Locally
+# 🔎 4. Start Qdrant
 
-Qdrant stores the vector embeddings generated for each uploaded book. The simplest way to run it locally is with Docker.
-
-1. **Pull and run the Qdrant image:**
+Run Qdrant locally with Docker:
 
 ```bash
-   docker run -p 6333:6333 -p 6334:6334 \
-     -v "$(pwd)/qdrant_storage:/qdrant/storage" \
-     qdrant/qdrant
+docker run -p 6333:6333 -p 6334:6334 \
+  -v "$(pwd)/qdrant_storage:/qdrant/storage" \
+  qdrant/qdrant
 ```
 
-   - Port `6333` serves the REST API.
-   - Port `6334` serves the gRPC API and is the port referenced by `QDRANT_PORT` in `backend/.env`.
-   - The `-v` flag mounts the project's `qdrant_storage/` directory so data persists across container restarts.
-
-2. **Verify Qdrant is running:**
+Check that Qdrant is healthy:
 
 ```bash
-   curl http://localhost:6333/healthz
+curl http://localhost:6333/healthz
 ```
 
-3. **Collections and payload indexing:** the backend automatically creates the Qdrant collection(s) it needs on startup. Each stored vector carries a payload that includes a `bookName` (or equivalent book identifier) field. When a user asks a question, the backend filters vector search to only that book's vectors using this payload field, so answers are always retrieved from the correct book rather than searched across a user's entire library.
+---
 
-4. **Alternative (native binary):** Qdrant can also be run without Docker by downloading a release binary from the [Qdrant GitHub releases page](https://github.com/qdrant/qdrant/releases) and running it directly; configuration and ports behave the same way.
+# 🤖 5. Start Ollama
 
-## 🚀 Running the Application
+Start Ollama:
 
-Start the backend:
+```bash
+ollama serve
+```
+
+Pull the required models:
+
+```bash
+ollama pull bge-m3:latest
+ollama pull qwen3:8b
+```
+
+You can change the models through `.env`.
+
+---
+
+# ⚙️ 6. Start the Backend
+
+Open a terminal:
 
 ```bash
 cd backend
@@ -128,7 +438,17 @@ go mod download
 go run .
 ```
 
-Start the frontend in a second terminal:
+The Go API should be available at:
+
+```text
+http://localhost:8080
+```
+
+---
+
+# 🎨 7. Start the Frontend
+
+Open another terminal:
 
 ```bash
 cd frontend
@@ -136,96 +456,189 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173` in a browser. The backend listens on `http://localhost:8080` by default.
-
-## 🔍 How Question Answering Works
-
-1. A PDF is uploaded and its text is extracted with `go-fitz`.
-2. The text is chunked and embedded using the multilingual embedding model (`bge-m3`), then stored in Qdrant with a payload that tags each vector with its source `bookName`.
-3. When a user submits a question (in any supported language), the question is embedded and Qdrant is queried with a payload filter restricting results to the relevant book.
-4. The most relevant chunks are passed to the Ollama generation model to produce an answer.
-5. If needed, the translation model converts the answer into the language the question was originally asked in before it's returned to the user.
-
-## 📡 API Overview
-
-| Method | Endpoint | Authentication | Purpose |
-| --- | --- | --- | --- |
-| GET | `/ping` | No | Basic server health check |
-| GET | `/api/status` | No | API status check |
-| POST | `/api/register` | No | Create an account |
-| POST | `/api/login` | No | Authenticate a user |
-| POST | `/api/handlePdf` | JWT | Upload and process a PDF |
-| POST | `/api/extractAnswer` | JWT | Ask a question about a book (multilingual; scoped to the selected book) |
-| GET | `/api/getBooks` | JWT | Retrieve the user's books |
-| GET | `/api/getConversation` | JWT | Retrieve conversation history |
-
-Protected endpoints require the JWT returned by the login endpoint in the `Authorization` header.
-
-## 🧪 Testing Module
-
-The project currently provides command-level checks rather than a complete automated test suite. These commands are ready to use as the testing module grows:
-
-```bash
-# Backend tests
-cd backend
-go test ./...
-
-# Frontend lint and production build
-cd frontend
-npm run lint
-npm run build
-```
-
-### 📝 Test Coverage
-
-Add or update the following as implementation work continues:
-
-- [ ] Authentication and JWT middleware tests
-- [ ] API handler tests for success and error responses
-- [ ] PDF extraction and embedding pipeline tests
-- [ ] PostgreSQL and Qdrant integration tests (including payload-filtered search by `bookName`)
-- [ ] Multilingual round-trip tests (ask in one language, verify answer returns in that language)
-- [ ] Frontend component and user-flow tests
-- [ ] End-to-end upload and question-answering test
-
-## 🗒️ Development Notes
-
-- Uploaded files are stored under `backend/uploadedFiles/`.
-- Qdrant data is persisted under `qdrant_storage/`.
-- Each Qdrant point's payload includes a `bookName` field; all retrieval queries filter on this field so multi-book libraries don't leak context between books.
-- Keep local credentials and generated data out of version control where appropriate.
-- Add project-specific implementation notes here as development continues:
+The React application should be available at:
 
 ```text
-[Development notes to be completed]
+http://localhost:5173
 ```
-
-## 🔍 Quality Assurance
-
-**Testing Excellence**
-
-- Comprehensive test coverage across core components
-- Table-driven tests for comprehensive scenario coverage
-- Integration tests for end-to-end validation (PDF upload → embedding → retrieval → answer)
-- Mock-friendly architecture for isolated unit testing of handlers and services
-
-**Code Quality**
-
-- Clean architecture with clear separation of concerns between API, database, and AI pipeline layers
-- Interface-driven design for better testability (Qdrant client, Ollama client, and repositories are swappable)
-
-
-## 🙏 Acknowledgments
-
-- **Qdrant** team for the high-performance vector database
-- **Ollama** team for making local LLM inference accessible
-- **Chi Router** team for the lightweight, idiomatic HTTP router
-- **go-fitz** maintainers for reliable PDF text extraction in Go
-- **BGE-M3** authors for the open multilingual embedding model
-- **QWEN3:8B** authors for the open multilingual embedding model
-- Go and React communities for best practices and patterns
 
 ---
 
-Happy reading! 📖🤖
-For questions or support, please open an issue on GitHub.
+# 🔌 Frontend ↔ Backend
+
+The frontend communicates with the Go backend through Axios.
+
+```js
+const apiClient = axios.create({
+  baseURL: "http://localhost:8080/api",
+  headers: { "Content-Type": "application/json" },
+});
+```
+
+Example routes:
+
+```text
+POST /api/login
+POST /api/register
+POST /api/handlePdf
+POST /api/extractAnswer
+GET  /api/getBooks
+GET  /api/getConversation
+```
+
+Protected routes use:
+
+```http
+Authorization: Bearer <token>
+```
+
+The frontend stores the authentication token in `localStorage` and sends it with authenticated requests.
+
+---
+
+# 🌐 API Reference
+
+All API responses follow a common structure:
+
+```json
+{
+  "success": true,
+  "message": "Description",
+  "data": {}
+}
+```
+
+## 🔓 Public Endpoints
+
+| Method | Endpoint        | Auth | Description         |
+| ------ | --------------- | ---- | ------------------- |
+| GET    | `/ping`         | ❌    | Simple health check |
+| GET    | `/api/status`   | ❌    | API status          |
+| POST   | `/api/register` | ❌    | Create a user       |
+| POST   | `/api/login`    | ❌    | Authenticate a user |
+
+
+
+# 🔐 Protected Endpoints
+
+| Method | Endpoint               | Auth | Description                 |
+| ------ | ---------------------- | ---- | --------------------------- |
+| POST   | `/api/handlePdf`       | JWT  | Upload and process a PDF    |
+| POST   | `/api/extractAnswer`   | JWT  | Ask a question about a book |
+| GET    | `/api/getBooks`        | JWT  | Get the user's books        |
+| GET    | `/api/getConversation` | JWT  | Get conversation history    |
+
+---
+
+
+# 🧠 The RAG Pipeline
+
+The core of Book Buddy looks like this:
+
+```text
+                 USER QUESTION
+                       │
+                       ▼
+              ┌─────────────────┐
+              │ Question        │
+              │ Embedding       │
+              └────────┬────────┘
+                       │
+                       ▼
+              ┌─────────────────┐
+              │     Qdrant      │
+              │                 │
+              │ Similarity      │
+              │ Search          │
+              │ + Book Filter   │
+              └────────┬────────┘
+                       │
+                       ▼
+              Relevant Book Chunks
+                       │
+                       ▼
+              ┌─────────────────┐
+              │     Ollama      │
+              │      LLM        │
+              └────────┬────────┘
+                       │
+                       ▼
+                  Final Answer
+                       │
+                       ▼
+                 User's Language
+```
+
+The important part is that the LLM doesn't have to rely only on its pretrained knowledge.
+
+**It gets relevant information from the book first.**
+
+That's what makes the conversation book-aware.
+
+---
+
+# 🧪 Running Tests
+
+Backend Go tests:
+
+```bash
+cd backend
+go test ./...
+```
+
+---
+
+# 📝 Development Notes
+
+Uploaded PDFs are stored under:
+
+```text
+backend/uploadedFiles/
+```
+
+Qdrant's local data is stored under:
+
+```text
+qdrant_storage/
+```
+
+Local services:
+
+```text
+Frontend     → localhost:5173
+Go API       → localhost:8080
+PostgreSQL   → localhost:5433
+Qdrant REST  → localhost:6333
+Qdrant gRPC  → localhost:6334
+Ollama       → localhost:11434
+```
+
+Keep environment secrets out of version control.
+
+For production, use a proper secret-management solution instead of committing credentials to the repository.
+
+---
+
+# ❤️ Built With Open Source
+
+Book Buddy stands on the shoulders of some excellent open-source projects:
+
+* **Qdrant** — vector search and storage
+* **Ollama** — local LLM and embedding inference
+* **PostgreSQL** — relational data storage
+* **Chi** — lightweight Go HTTP router
+* **go-fitz** — PDF text extraction
+* **React** — frontend UI
+* **Vite** — frontend tooling
+
+And, of course, the open-source model community that makes local AI possible.
+
+---
+
+# 📚 Happy Reading!
+
+**Book Buddy**
+
+### *Your book. Your language. Your conversation.*
+
+> **Ask more. Understand more. Read better.** ✨

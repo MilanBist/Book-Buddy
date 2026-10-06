@@ -18,13 +18,11 @@ export default function SearchBar({prompt, setPrompt, language, setLanguage, cur
     const navigate = useNavigate();
     // now add a section in order to get the response from the ai about the conversation 
     const promptUpload = async () =>{
-    console.log("Incoming prompt: ",prompt);
     // if (books === null){
     //   alert("Upload the book first. \n Or select one.");
     //   return;
     // }
 
-    console.log("The current book is: ", currentBook);
     const userPrompt  = {
       query: prompt,
       language: language,
@@ -32,6 +30,7 @@ export default function SearchBar({prompt, setPrompt, language, setLanguage, cur
       bookName: currentBook["bookName"],
     };
 
+    setPrompt("");
     try{
       const token = localStorage.getItem("tokenId");
       if (!token){
@@ -65,10 +64,7 @@ export default function SearchBar({prompt, setPrompt, language, setLanguage, cur
 
         }
         const err = await response.json();
-        console.log(err);
         // Print the error here
-        console.log("Status Code: ", err.error.code);
-        console.log("Error: ", err.error.message);
 
         // This is the error being obtained.
         if (err.error.message == "No table"){
@@ -89,7 +85,6 @@ export default function SearchBar({prompt, setPrompt, language, setLanguage, cur
 
         // decode the given data 
         const chunk = decoder.decode(value, {stream: true});
-        console.log(chunk);
 
         // if finished reading the stream data
         if (done) break;
@@ -102,7 +97,6 @@ export default function SearchBar({prompt, setPrompt, language, setLanguage, cur
         }
     } catch(err){
         console.log("Error from the portion of handling raw question." )
-        console.log(err);
     } finally{
         console.log("Finished till here of uploading file.");
     }
@@ -118,21 +112,29 @@ export default function SearchBar({prompt, setPrompt, language, setLanguage, cur
     };
 
     const handleSearchClick = ()=>{
-        if (prompt.trim().length <= 2 || prompt == null){
+        if (!currentBook){
+            alert("Insert the book first.");
+            return;
+        }
+
+        if (prompt.trim().length <= 2 ){
             alert("Assign proper prompt.");
             return;
         }
-        setConversation((prev)=>[
-            ...prev,
-            {
-                role:"user",
-                content:prompt,
-            },
-            {
-                role: "assistant",
-                content: "",
-            }
-        ])
+        setConversation((prev)=>{
+            console.log(prev);
+            console.log("Array?", Array.isArray(prev));
+            return [
+                ...prev,
+                {
+                    role:"user",
+                    content:prompt,
+                },
+                {
+                    role: "assistant",
+                    content: "",
+                }
+            ]});
         promptUpload();
     }
 
@@ -142,8 +144,12 @@ export default function SearchBar({prompt, setPrompt, language, setLanguage, cur
 
     const handleKeyDown = (event)=>{
         if (event.key === 'Enter'){
-            console.log("Enter is pressed")
-            if (prompt.trim().length <= 2 || [prompt] == null){
+
+            if (!currentBook) {
+            alert("Upload the book first.");
+            return;
+}
+            if (prompt.trim().length <= 2){
                 alert("Assign proper prompt.");
                 return;
             }
@@ -158,7 +164,8 @@ export default function SearchBar({prompt, setPrompt, language, setLanguage, cur
                     role: "assistant",
                     content: "",
                 }
-            ])
+            ]);
+
             promptUpload();
         }
 

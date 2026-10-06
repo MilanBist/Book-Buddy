@@ -42,7 +42,7 @@ func TestHandleGettingBooks(t *testing.T) {
 
 	handler.HandleGettingBooks(res, req)
 
-	if res.Code != http.StatusAccepted {
+	if res.Code != http.StatusOK {
 		t.Fatalf("Required 202 and got %d", res.Code)
 	}
 

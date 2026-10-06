@@ -31,9 +31,13 @@ export default function ConversationHistory({conversation, setConversation, curr
                 });
 
                 const responseData = (await response).data;
+                console.log("Responded data is: ",responseData);
                 
                 // after getting the response from the handler now the task is to show that one in the tab
-                setConversation(responseData["data"]);
+                if (responseData.data !== null) setConversation(responseData["data"]);
+                else if (responseData.data === null){
+                    setConversation([]);
+                }
             }catch(error){
                 const status = error.response?.status;
                 // check for all kinds of status

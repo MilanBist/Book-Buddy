@@ -36,7 +36,6 @@ export default function FileUpload({uploadBar,setUploadBar, currentBookData, set
         formData.append("document", fileData)
         // after appending the file now my task is to send the request using the axios to the browser
         try{
-            console.log("reaching here.");
             setIsUploading(true);
             const response = await axios.post("http://localhost:8080/api/handlePdf", formData, {
                 headers:{
@@ -46,7 +45,6 @@ export default function FileUpload({uploadBar,setUploadBar, currentBookData, set
             });
 
             const responseData = response.data;
-            console.log("Response Data: ", responseData);
             const bookId = responseData.data.bookId;
             const bookName = responseData.data.bookName;
             const bookData = {
@@ -63,8 +61,6 @@ export default function FileUpload({uploadBar,setUploadBar, currentBookData, set
     
         } catch(err){
             setUploadBar(false);
-            console.log(err.response?.status)
-            console.log(err.response);
             const status = err.response?.status;
             // const message =  err.response.data.message;
             switch (status){

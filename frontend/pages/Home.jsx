@@ -2,18 +2,16 @@ import { useState } from 'react';
 import NavBar from "../components/NavBar.jsx";
 import SearchBar from '../components/PromptBar.jsx';
 import ConversationHistory from '../components/Conversation.jsx';
-import { useNavigate } from 'react-router-dom';
 import ChatHistory from '../components/ChatHistory.jsx';
 import '../styles/Home.css'
 
 export default function Home() {
-  const navigate = useNavigate();
 
   const [uploadBar, setUploadBar] = useState(false);
   const [books, setBooks] = useState([]);
   const [conversation, setConversation] = useState([]);
   const [currentBook, setCurrentBook] = useState();
-  const [prompt, setPrompt] = useState();
+  const [prompt, setPrompt] = useState("");
   const [language, setLanguage] = useState();
 
   return (
