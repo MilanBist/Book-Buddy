@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 	"time"
-
 	"github.com/MilanBist/AI-Powered-Book-Answerer/config"
 	dbqueries "github.com/MilanBist/AI-Powered-Book-Answerer/db/dbQueries"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/middlewares"
@@ -121,16 +120,15 @@ func(h *Handler) setupRoutes(){
 			r.Get("/status", func(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte("Success in API call!"))
 			})
-
+			
 			// for the login and registration
 			r.Post("/login", loginHandler.HandleLogin)
 			r.Post("/register", registerHandler.HandleRegister)
 
 			// create the protected handlers
 			r.Group(func(r chi.Router){
-				
-				// add the middlewares here
 				r.Use(middlewares.LoggingMiddleware)
+				// add the middlewares here
 				r.Use(middlewares.AuthMiddleware)
 
 				r.Post("/handlePdf", bookUploadHandler.HandleRawPdfFile)

@@ -52,7 +52,7 @@ export default function FileUpload({uploadBar,setUploadBar, currentBookData, set
                 "bookName": bookName,
             };
             
-            setBookData((previous)=>[
+            await setBookData((previous)=>[
                 bookData,
                 ...previous,
             ])
