@@ -3,25 +3,18 @@ package extractpdf
 import (
 	"context"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
+	"time"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
+	"github.com/google/uuid"
 	"github.com/qdrant/go-client/qdrant"
 	"github.com/tmc/langchaingo/llms/ollama"
 )
 
-func CreateEmbeddings(splittedDocx []string, s *models.Server) ([][]float32, error) {
-	// create the ollama client
-	llm, err := ollama.New(
-		ollama.WithModel(s.Config.OllamaEmbeddingModel),
-	)
-	if err != nil{
-		fmt.Println("Error in splitting docx.")
-		return nil,err
-	}
-
-	// now generate result with the given llm
+// creating the embeddings
+func CreateEmbeddings(splittedDocx []string, llm *ollama.LLM) ([][]float32, error) {
+	startTime := time.Now()
 	response, err := llm.CreateEmbedding(context.Background(), 
 		splittedDocx,
 	)
@@ -30,83 +23,18 @@ func CreateEmbeddings(splittedDocx []string, s *models.Server) ([][]float32, err
 		fmt.Println("Error in creating embeddings.")
 		return nil,err
 	}
-
-	// if not just print the response
+	fmt.Println("For the time to generate embedding. : ", time.Since(startTime))
 	return response,nil
 }
 
+
+
 func createCollectionWithName(splittedDocx []string, embededBook [][]float32, s *models.Server, bookTitle string) error{
-	// now just create the collection and add the given one
-
 	client := s.Store
-	collectionName := "AI_Book_summarizer"
-	// check if the collection exists
-
-	exists, err := client.CollectionExists(context.Background(), collectionName)
-	if err != nil{
-		// collection doesn't exist
-		fmt.Println("Collection doesn't exist so creating a new one.")
-	}
-
-	fmt.Println("[COLLECTION EXISTENCE]: ", exists)
-
-	// if the collection doesn't exists
-	if !exists{
-		err = client.CreateCollection(context.Background(), &qdrant.CreateCollection{
-			CollectionName: "AI_Book_summarizer",
-			VectorsConfig: qdrant.NewVectorsConfig(&qdrant.VectorParams{
-			Size:     uint64(len(embededBook[0])),
-			Distance: qdrant.Distance_Cosine,
-			}),
-		})
-
-		if err != nil{
-		fmt.Println("Error in creating the collection.")
-		return err
-		}
-
-		// add the indexing in the the qdrant bookName payload specifically
-		_,err = client.CreateFieldIndex(
-			context.Background(), 
-			&qdrant.CreateFieldIndexCollection{
-				CollectionName: "AI_Book_summarizer",
-				FieldName: "Title",
-				FieldType: qdrant.FieldType_FieldTypeBool.Enum(),
-			},
-		)
-	}
-	// length of the splittedDocx
-	fmt.Println("The length is : ", len(splittedDocx))
-
-	
-
-
-	// store the given data inside of the given collection
-	// create the points for the given embeddings
 	var points []*qdrant.PointStruct
-
-
-	// check for the .txt file in the output
-	var stringedData string
-	var numId int
-	path := "./output"
-	data, err := os.ReadFile(path+"/output.txt")
-	if err != nil || len(data)==0{
-		file, err := os.Create(path+"/output.txt")
-		if err != nil{
-			return err
-		}
-		file.Close()
-		numId = 1
-	} else{
-		stringedData = string(data)
-		numId, _ = strconv.Atoi(stringedData)
-	}	
-
-
 	for i:=0; i<len(embededBook); i++{
 		point := &qdrant.PointStruct{
-			Id:       qdrant.NewIDNum(uint64(numId)),
+			Id:       qdrant.NewIDUUID(uuid.NewString()),
 			Vectors:  qdrant.NewVectors(embededBook[i]...),
 			Payload:  qdrant.NewValueMap(map[string]any{
 				"text": splittedDocx[i],
@@ -114,68 +42,43 @@ func createCollectionWithName(splittedDocx []string, embededBook [][]float32, s 
 				"bookTitle": bookTitle,
 			}),
 		}
-		numId += 1
 		points = append(points, point)
 	}
 
-	//insert into the output.txt the value of numId
-	file, err := os.OpenFile(path+"/output.txt", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil{
-		fmt.Println("Error in opening the file.")
-		return err
-	}
-	defer file.Close()
-	file.WriteString(strconv.Itoa(numId))
-
-
 
 	// insert the data in the certain database
-	operationInfo, err := client.Upsert(context.Background(), &qdrant.UpsertPoints{
+	startTime := time.Now()
+	_, err := client.Upsert(context.Background(), &qdrant.UpsertPoints{
 		CollectionName: "AI_Book_summarizer",
 		Points: points,
 	})
-
 	if err != nil{
 		fmt.Println("Error in inserting the data.")
 		return err
 	}
-	fmt.Println(operationInfo)
+	fmt.Println("Inserting time into the vector db: ", time.Since(startTime))
 	return nil
 }
 
-func VectorStore(splittedDocx []string, s *models.Server, fileName string) error{
-	newPath := "./output"
-	_, err := os.ReadDir(newPath)
-	if err != nil{
-		err := os.MkdirAll(newPath, 0755)
-		if err != nil{
-			return err
-		}
-	}
-	
-	// get the book name
+// create the embeddings and store them to the vector storage.
+func VectorStore(splittedDocx []string, s *models.Server, fileName string,llm *ollama.LLM, c chan error){
+
 	path := strings.Split(fileName, "/")
-	// // set the last name to be the book title
 	bookTitle := path[len(path)-1]
-	// remove the extension
 	book := strings.Split(bookTitle, ".")
 	bookTitle = book[0]
-	fmt.Println("Book title saved: ", bookTitle)
 
-	response, err := CreateEmbeddings(splittedDocx, s)
+	startTime := time.Now()
+	response, err := CreateEmbeddings(splittedDocx, llm)
 	if err != nil{
-		return err
+		c <- err
+		return
 	}
-
-	fmt.Println(bookTitle)
-	// create the collection and store the given response in it\
+	fmt.Println("Creating embedding time: ", time.Since(startTime))
 	err = createCollectionWithName(splittedDocx, response, s, bookTitle)
 	if err != nil{
-		return err
+		c <- err
+		return
 	}	
-
-
-	fmt.Println("File name with the giiven is stored. ", bookTitle)
-
-	return nil
+	c <- nil
 }

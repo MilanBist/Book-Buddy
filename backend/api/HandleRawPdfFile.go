@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+	"time"
+
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 )
 
@@ -63,14 +65,16 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 	}
 
 
+	startTime := time.Now()
 	fullPath, err := h.GetFileLocation.StoreFile(fileName, file)
-
+	fmt.Println("For storing: ",time.Since(startTime))
 	// send this file to the pipeline ->
 	// i. Extract the text from the pdf
 	// ii. Converting the extracted text to a single string
 	// iii. Split this string
 	// iv. Create embeddings and store in vector db
 
+	startTime = time.Now()
 	_, err = h.ExtractPdf.ExtractData(&file, fullPath)
 	if err != nil{
 		fmt.Println("[PDF HANDLER]: Error in extracting the pdf.")
@@ -85,6 +89,7 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
+	fmt.Println("For extracting pdf: ", time.Since(startTime))
 
 	// for the full path
 	filePaths := strings.Split(fullPath, "/")
@@ -96,6 +101,7 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 
 	userId := r.Context().Value("userId").(int)
 	// add to the database
+	startTime = time.Now()
 	_, bookId, err := h.StoreBook.AddBookIdentity(fileName, userId)
 	if err != nil{
 		fmt.Println("[PDF HANDLER]: Error in adding the book to db.")
@@ -109,6 +115,7 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 		json.NewEncoder(w).Encode(&response)
 		return
 	}
+	fmt.Println("Storing to db: ", time.Since(startTime));
 	// if no nil just return extraction and saving compelted
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

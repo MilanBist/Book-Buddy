@@ -7,12 +7,19 @@ import (
 	"github.com/MilanBist/AI-Powered-Book-Answerer/api"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/config"
 	"github.com/MilanBist/AI-Powered-Book-Answerer/db"
+	_ "net/http/pprof"
 )
 
 
 func main(){
 	// add the configuration files
 	cfg := config.LoadConfig()
+
+	go func() {
+		if err := http.ListenAndServe("localhost:6060", nil); err != nil {
+			log.Fatal("pprof server:", err)
+		}
+	}()
 
 	// add the vector data base with certain things
 	vectorStore, err := db.LoadVectorDatabase(cfg)
