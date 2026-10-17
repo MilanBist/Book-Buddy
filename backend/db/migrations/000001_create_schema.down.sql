@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS "users";
+DROP TABLE IF EXISTS "conversation";
+DROP TABLE IF EXISTS "bookJob";
 DROP TABLE IF EXISTS "books";
-DROP TABLE IF EXISTS "conversations";
-
+DROP TABLE IF EXISTS "users";

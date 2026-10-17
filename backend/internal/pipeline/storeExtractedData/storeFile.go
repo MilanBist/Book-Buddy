@@ -14,8 +14,7 @@ type StoreDataToLocation struct{
 }
 
 func(s *StoreDataToLocation) StoreFile(fileName string, file multipart.File)(string, error){
-	entries, err := os.ReadDir(s.BasePath)
-	fmt.Println(entries)
+	_, err := os.ReadDir(s.BasePath)
 	info, err := os.Stat(s.BasePath)
 	if err != nil{
 		if info == nil{

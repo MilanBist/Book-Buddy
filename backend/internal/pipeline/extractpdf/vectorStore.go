@@ -28,7 +28,6 @@ func CreateEmbeddings(splittedDocx []string, llm *ollama.LLM) ([][]float32, erro
 }
 
 
-
 func createCollectionWithName(splittedDocx []string, embededBook [][]float32, s *models.Server, bookTitle string) error{
 	client := s.Store
 	var points []*qdrant.PointStruct
@@ -79,6 +78,6 @@ func VectorStore(splittedDocx []string, s *models.Server, fileName string,llm *o
 	if err != nil{
 		c <- err
 		return
-	}	
+	}
 	c <- nil
 }

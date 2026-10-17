@@ -17,7 +17,10 @@ type StoreFileToLocation interface{
 }
 
 type StoreRawFile interface{
-	AddBookIdentity(bookTitle string, userId int) (int, int, error)
+	AddBookIdentity(bookTitle string, userId int, status string) (int, error)
+	AddBookJob(bookId int, status, errMsg string, startedTime, completedTime *time.Time) (int, error)
+	UpdateBookStatus(bookId int, status, errMsg string ) error
+	UpdateBookJobStatus(jobId int, status, errMsg string) error
 }
 
 type Extract interface{
@@ -30,14 +33,22 @@ type RawPdfHandler struct{
 	ExtractPdf 			Extract
 }
 
+
+
+func timePtr(now time.Time) *time.Time{
+	return &now
+}
+
 func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
-	// handle raw pdf files
+	var booksId int
+	var jobId int
+	var userId int
+
 	file,header, err := r.FormFile("document")
 	if err != nil{
 		fmt.Println("[PDF HANDLER]: Error in obtaining the book.")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		// now add the error message
 		response := models.APIResponse{
 			Success: false,
 			Message: "Can't obtain the pdf file.",
@@ -45,17 +56,13 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 		json.NewEncoder(w).Encode(&response)
 		return
 	}
-	defer file.Close()
-
-	// get the file name
 	fileName := header.Filename
 
-	// check if the extension is pdf or not
+	// check for the extension explicity as the .pdf
 	if strings.ToLower(filepath.Ext(fileName)) != ".pdf" {
 		fmt.Println("[PDF HANDLER]: Only can extract the .pdf.")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		// now add the error message
 		response := models.APIResponse{
 			Success: false,
 			Message: "precise only .pdf is accepted.",
@@ -64,50 +71,27 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-
-	startTime := time.Now()
 	fullPath, err := h.GetFileLocation.StoreFile(fileName, file)
-	fmt.Println("For storing: ",time.Since(startTime))
-	// send this file to the pipeline ->
-	// i. Extract the text from the pdf
-	// ii. Converting the extracted text to a single string
-	// iii. Split this string
-	// iv. Create embeddings and store in vector db
-
-	startTime = time.Now()
-	_, err = h.ExtractPdf.ExtractData(&file, fullPath)
 	if err != nil{
-		fmt.Println("[PDF HANDLER]: Error in extracting the pdf.")
-		w.Header().Set("Content-Type", "application/json")
+		fmt.Println("[BOOK PROCESSING HANDLER]: Error is : ", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		// now add the error message
+
 		response := models.APIResponse{
 			Success: false,
-			Message: "Error in extracting the data.",
+			Message: "Error in storing file.",
 		}
+
 		json.NewEncoder(w).Encode(&response)
-		return
 	}
 
-	fmt.Println("For extracting pdf: ", time.Since(startTime))
+	userId = r.Context().Value("userId").(int)
 
-	// for the full path
-	filePaths := strings.Split(fullPath, "/")
-	fileName = filePaths[len(filePaths)-1]
-
-	// get the file name
-	newFilePath := strings.Split(fileName, ".")
-	fileName = newFilePath[0]
-
-	userId := r.Context().Value("userId").(int)
-	// add to the database
-	startTime = time.Now()
-	_, bookId, err := h.StoreBook.AddBookIdentity(fileName, userId)
+	// add the book's identity as pending one
+	booksId, err = h.StoreBook.AddBookIdentity(fileName, userId, "pending")
 	if err != nil{
 		fmt.Println("[PDF HANDLER]: Error in adding the book to db.")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		// now add the error message
 		response := models.APIResponse{
 			Success: false,
 			Message: err.Error(),
@@ -115,18 +99,43 @@ func(h *RawPdfHandler) HandleRawPdfFile(w http.ResponseWriter, r *http.Request){
 		json.NewEncoder(w).Encode(&response)
 		return
 	}
-	fmt.Println("Storing to db: ", time.Since(startTime));
-	// if no nil just return extraction and saving compelted
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	// set the response
+
+	// get the job id as well
+	jobId, err = h.StoreBook.AddBookJob(booksId, "queued", "", timePtr(time.Now()), nil)
+	if err != nil{
+		fmt.Println("[PDF HANDLER]: Error in adding the job to db.")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		response := models.APIResponse{
+			Success: false,
+			Message: err.Error(),
+		}
+		json.NewEncoder(w).Encode(&response)
+		return
+	}
+
+
+	go func(){
+		defer file.Close()
+		// set as the processing one
+		_ = h.StoreBook.UpdateBookStatus(booksId, "processing", "")
+		_ = h.StoreBook.UpdateBookJobStatus(jobId, "processing", "")
+		_, err = h.ExtractPdf.ExtractData(&file, fullPath)
+		if err != nil{
+			_ = h.StoreBook.UpdateBookStatus(booksId, "rejected", err.Error())
+			_ = h.StoreBook.UpdateBookJobStatus(jobId, "rejected", err.Error())
+		}
+
+		_ = h.StoreBook.UpdateBookStatus(booksId, "completed", err.Error())
+		_ = h.StoreBook.UpdateBookJobStatus(jobId, "completed", err.Error())
+
+	}()
+
+	w.WriteHeader(http.StatusAccepted)
 	response := models.APIResponse{
 		Success: true,
-		Message: "Book added to database successfully.",
-		Data: models.BookData{
-			BookId: bookId,
-			BookName: fileName,
-		},
+		Message: "",
+		Data: jobId,
 	}
 	json.NewEncoder(w).Encode(&response)
 }

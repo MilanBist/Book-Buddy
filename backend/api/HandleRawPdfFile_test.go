@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/MilanBist/AI-Powered-Book-Answerer/internal/models"
 )
@@ -26,11 +27,21 @@ type FakeStoreToDb 	struct{
 	Status 		int
 	UserId 		int
 	Error 		error
+	BookId 		int
 }
-func (f *FakeStoreToDb) AddBookIdentity(bookTitle string, userId int) (int, int, error){
-	return f.Status, f.UserId, f.Error
+func (f *FakeStoreToDb) AddBookIdentity(bookTitle string, userId int, status string) (int, error){
+	return f.UserId, f.Error
 }
 
+func (f *FakeStoreToDb) AddBookJob(bookId int, status, errMsg string, startedTime, completedTime *time.Time)(int, error){
+	return f.BookId, f.Error
+}
+func (f *FakeStoreToDb) UpdateBookStatus(bookId int, status, errMsg string) error{
+	return f.Error
+}
+func (f *FakeStoreToDb) UpdateBookJobStatus(bookId int, status, errMsg string) error{
+	return f.Error
+}
 type FakeExtract struct{
 	Status 	int
 	Error 	error
@@ -38,6 +49,7 @@ type FakeExtract struct{
 func (f *FakeExtract) ExtractData(file *multipart.File, filePath string) (int, error){
 	return f.Status, f.Error
 }
+
 
 type HandlePdf struct{	
 	Success bool        	`json:"success"`
@@ -54,6 +66,7 @@ func TestHandleRawPdf(t *testing.T){
 	fakeStoreDb := &FakeStoreToDb{
 		Status: 200,
 		UserId: 1,
+		BookId: 1,
 		Error: nil,
 	}
 
